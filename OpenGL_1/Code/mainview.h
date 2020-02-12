@@ -58,6 +58,8 @@ private:
     void createShaderProgram();
     void initialiseCube(Vertex *cube);
     void initialisePyramid(Vertex *pyramid);
+    void rotateObjects();
+    void transScaleObjects();
 
     // Vertex array obj + vertex buffer obj
     GLuint vao[2], vbo[2];
@@ -65,6 +67,12 @@ private:
     QMatrix4x4 cubeMatrix, pyramidMatrix, projectionTransf;
     // Locations of the model and projection uniforms
     GLint modelLocation, projectionLocation;
+    // Declare the initial rotation values (at origin)
+    float x = 0.0f;
+    float y = 0.0f;
+    float z = 0.0f;
+    // Declare the initial scale
+    float scale = 1.0f;
 };
 
 #endif // MAINVIEW_H

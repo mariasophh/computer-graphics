@@ -183,18 +183,44 @@ void MainView::resizeGL(int newWidth, int newHeight) {
     // Update the values of the projection transformation
     projectionTransf.setToIdentity(); // reset
     projectionTransf.perspective(60, newRatio, 1, 100); // set projection to new ratio
+    // Update the screen after changes
+    update();
 }
 
 // --- Public interface
 
 void MainView::setRotation(int rotateX, int rotateY, int rotateZ) {
     qDebug() << "Rotation changed to (" << rotateX << "," << rotateY << "," << rotateZ << ")";
-    Q_UNIMPLEMENTED();
+
+    // update x,y,z coordinates (that are "globally" seen)
+    // note that only one value actually changes at a time (rotation wrt one axis)
+    x = rotateX;
+    y = rotateY;
+    z = rotateZ;
+
+    // translate and scale objects
+    transScaleObjects();
+
+    // rotate objects
+    rotateObjects();
+
+    update();
 }
 
-void MainView::setScale(int scale) {
-    qDebug() << "Scale changed to " << scale;
-    Q_UNIMPLEMENTED();
+void MainView::setScale(int newScale) {
+    qDebug() << "Scale changed to " << newScale;
+
+    // update scale (that is "globally" seen)
+    // (using percetages)
+    scale = (float) newScale / 100.0f;
+
+    // translate and scale objects
+    transScaleObjects();
+
+    // rotate objects
+    rotateObjects();
+
+    update();
 }
 
 void MainView::setShadingMode(ShadingMode shading) {
@@ -286,6 +312,33 @@ void MainView::initialisePyramid(Vertex pyramid[18]) {
     pyramid[17] = pv2;
 }
 
+/* This function rotates all the objects using the "global" scale value
+ * Note that on scaling the value is updated */
+void MainView::transScaleObjects() {
+    // cube
+    cubeMatrix.setToIdentity(); // reset
+    cubeMatrix.translate(2, 0, -6); // initial position
+    cubeMatrix.scale(scale); // set global scale
+
+    // pyramid
+    pyramidMatrix.setToIdentity(); // reset
+    pyramidMatrix.translate(-2, 0, -6); // initial position
+    pyramidMatrix.scale(scale); // set global scale
+}
+
+/* This function rotates all the objects using the "global" x, y, z coordinates
+ * Note that on rotation these coordinates are updated */
+void MainView::rotateObjects() {
+    // rotate cube
+    cubeMatrix.rotate(x, 1, 0, 0); // x-axis
+    cubeMatrix.rotate(y, 0, 1, 0); // y-axis
+    cubeMatrix.rotate(z, 0, 0, 1); // z-axis
+
+    // rotate pyramid
+    pyramidMatrix.rotate(x, 1, 0, 0); // x-axis
+    pyramidMatrix.rotate(y, 0, 1, 0); // y-axis
+    pyramidMatrix.rotate(z, 0, 0, 1); // z-axis
+}
 
 /**
  * @brief MainView::onMessageLogged
