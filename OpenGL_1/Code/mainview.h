@@ -59,8 +59,12 @@ private:
     void initialiseCube(Vertex *cube);
     void initialisePyramid(Vertex *pyramid);
 
-    // vertex array obj + vertex buffer obj
+    // Vertex array obj + vertex buffer obj
     GLuint vao[2], vbo[2];
+    // Transformation matrices
+    QMatrix4x4 cubeMatrix, pyramidMatrix, projectionTransf;
+    // Locations of the model and projection uniforms
+    GLint modelLocation, projectionLocation;
 };
 
 #endif // MAINVIEW_H

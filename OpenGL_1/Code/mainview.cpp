@@ -15,6 +15,20 @@ MainView::MainView(QWidget *parent) : QOpenGLWidget(parent) {
     qDebug() << "MainView constructor";
 
     connect(&timer, SIGNAL(timeout()), this, SLOT(update()));
+
+    // initialise QMatrix4x4 data-members for the cube and pyramid
+    // model transformation
+    cubeMatrix = QMatrix4x4();
+    pyramidMatrix = QMatrix4x4();
+
+    // set values for objects' translation
+    cubeMatrix.translate(2, 0, -6);
+    pyramidMatrix.translate(-2, 0, -6);
+
+    // initialise QMatrix4x34 data-member
+    // projection transformation
+    projectionTransf = QMatrix4x4();
+    projectionTransf.perspective(60, 1, 1, 100);
 }
 
 /**
@@ -77,7 +91,7 @@ void MainView::initializeGL() {
 
     createShaderProgram();
 
-    // initialise vbo and vao as arrays (more objects)
+    // initialise vbo and vao as arrays (to fit more objects)
     glGenBuffers(2, vbo);
     glGenVertexArrays(2, vao);
 
@@ -120,6 +134,10 @@ void MainView::createShaderProgram() {
     shaderProgram.addShaderFromSourceFile(QOpenGLShader::Fragment,
                                            ":/shaders/fragshader.glsl");
     shaderProgram.link();
+
+    // Extract the locations of the uniforms
+    modelLocation = shaderProgram.uniformLocation("modelTransform");
+    projectionLocation = shaderProgram.uniformLocation("projectionTransform");
 }
 
 // --- OpenGL drawing
@@ -136,12 +154,16 @@ void MainView::paintGL() {
 
     shaderProgram.bind();
 
+    glUniformMatrix4fv(projectionLocation, 1, GL_FALSE, (GLfloat*) projectionTransf.data());
+
     // Draw cube
     glBindVertexArray(vao[0]);
+    glUniformMatrix4fv(modelLocation, 1, GL_FALSE, (GLfloat*) cubeMatrix.data());
     glDrawArrays(GL_TRIANGLES, 0, 36);
 
     // Draw pyramid
     glBindVertexArray(vao[1]);
+    glUniformMatrix4fv(modelLocation, 1, GL_FALSE, (GLfloat*) pyramidMatrix.data());
     glDrawArrays(GL_TRIANGLES, 0, 18);
 
     shaderProgram.release();
@@ -156,9 +178,11 @@ void MainView::paintGL() {
  * @param newHeight
  */
 void MainView::resizeGL(int newWidth, int newHeight) {
-    // TODO: Update projection to fit the new aspect ratio
-    Q_UNUSED(newWidth)
-    Q_UNUSED(newHeight)
+    // Update projection to fit the new aspect ratio
+    float newRatio = (float) newWidth / (float) newHeight;
+    // Update the values of the projection transformation
+    projectionTransf.setToIdentity(); // reset
+    projectionTransf.perspective(60, newRatio, 1, 100); // set projection to new ratio
 }
 
 // --- Public interface
