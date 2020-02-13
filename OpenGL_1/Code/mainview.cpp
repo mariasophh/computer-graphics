@@ -16,19 +16,24 @@ MainView::MainView(QWidget *parent) : QOpenGLWidget(parent) {
 
     connect(&timer, SIGNAL(timeout()), this, SLOT(update()));
 
-    // initialise QMatrix4x4 data-members for the cube and pyramid
+    // initialise QMatrix4x4 data-members for the cube pyramid and sphere
     // model transformation
     cubeMatrix = QMatrix4x4();
     pyramidMatrix = QMatrix4x4();
+    sphereMatrix = QMatrix4x4();
 
     // set values for objects' translation
     cubeMatrix.translate(2, 0, -6);
     pyramidMatrix.translate(-2, 0, -6);
+    sphereMatrix.translate(0, 0, -10);
 
     // initialise QMatrix4x34 data-member
     // projection transformation
     projectionTransf = QMatrix4x4();
     projectionTransf.perspective(60, 1, 1, 100);
+
+    // rescale the sphere with 0.04
+    sphereMatrix.scale(0.04f);
 }
 
 /**
@@ -47,8 +52,8 @@ MainView::~MainView() {
     glDisableVertexAttribArray(1);
 
     // cleaning up the vbo and vao arrays
-    glDeleteBuffers(2, vbo);
-    glDeleteVertexArrays(2, vao);
+    glDeleteBuffers(3, vbo);
+    glDeleteVertexArrays(3, vao);
 
     makeCurrent();
 }
@@ -92,21 +97,23 @@ void MainView::initializeGL() {
     createShaderProgram();
 
     // initialise vbo and vao as arrays (to fit more objects)
-    glGenBuffers(2, vbo);
-    glGenVertexArrays(2, vao);
+    glGenBuffers(3, vbo);
+    glGenVertexArrays(3, vao);
 
     // cube
     Vertex cube[36];
     initialiseCube(cube);
 
+    // bind cube array and buffer
     glBindVertexArray(vao[0]);
     glBindBuffer(GL_ARRAY_BUFFER, vbo[0]);
-
+    // load cube data to the buffer
     glBufferData(GL_ARRAY_BUFFER, sizeof(cube), cube, GL_STATIC_DRAW);
 
+    // cube coordinates
     glEnableVertexAttribArray(0);
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), 0);
-
+    // cube colours
     glEnableVertexAttribArray(1);
     glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (GLvoid *) (3*sizeof(float)));
 
@@ -114,14 +121,49 @@ void MainView::initializeGL() {
     Vertex pyramid[18];
     initialisePyramid(pyramid);
 
+    // bind pyramid array and buffer
     glBindVertexArray(vao[1]);
     glBindBuffer(GL_ARRAY_BUFFER, vbo[1]);
-
+    // load pyramid data to the buffer
     glBufferData(GL_ARRAY_BUFFER, sizeof(pyramid), pyramid, GL_STATIC_DRAW);
 
+    // pyramid coordinates
     glEnableVertexAttribArray(0);
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), 0);
+    // pyramid colours
+    glEnableVertexAttribArray(1);
+    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (GLvoid *) (3*sizeof(float)));
 
+    // load sphere from model
+    Model sphereModel = Model(":/models/sphere.obj");
+    QVector<QVector3D> sphereVertices = sphereModel.getVertices();
+
+    // populate the sphere array with the vertices' coordinates of the sphere
+    sizeSphere = sphereVertices.size();
+    Vertex sphere[sizeSphere];
+    QVector<QVector3D>::iterator it = sphereVertices.begin();
+    while( it != sphereVertices.end()) {
+        // assign random colours for the current vertex
+        float r = rand() / (float) RAND_MAX;
+        float g = rand() / (float) RAND_MAX;
+        float b = rand() / (float) RAND_MAX;
+
+        int counter = std::distance(sphereVertices.begin(), it);
+        sphere[counter] = {(*it).x(), (*it).y(), (*it).z(), r, g, b};
+
+        ++it;
+    }
+
+    // bind sphere array and buffer
+    glBindVertexArray(vao[2]);
+    glBindBuffer(GL_ARRAY_BUFFER, vbo[2]);
+    // load sphere data to the buffer
+    glBufferData(GL_ARRAY_BUFFER, sizeof(sphere), sphere, GL_STATIC_DRAW);
+
+    // sphere coordinates
+    glEnableVertexAttribArray(0);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), 0);
+    // sphere colours
     glEnableVertexAttribArray(1);
     glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (GLvoid *) (3*sizeof(float)));
 
@@ -165,6 +207,11 @@ void MainView::paintGL() {
     glBindVertexArray(vao[1]);
     glUniformMatrix4fv(modelLocation, 1, GL_FALSE, (GLfloat*) pyramidMatrix.data());
     glDrawArrays(GL_TRIANGLES, 0, 18);
+
+    // Draw sphere
+    glBindVertexArray(vao[2]);
+    glUniformMatrix4fv(modelLocation, 1, GL_FALSE, (GLfloat*) sphereMatrix.data());
+    glDrawArrays(GL_TRIANGLES, 0, sizeSphere);
 
     shaderProgram.release();
 }
@@ -324,20 +371,26 @@ void MainView::transScaleObjects() {
     pyramidMatrix.setToIdentity(); // reset
     pyramidMatrix.translate(-2, 0, -6); // initial position
     pyramidMatrix.scale(scale); // set global scale
+
+    // sphere
+    sphereMatrix.setToIdentity(); // reset
+    sphereMatrix.translate(0, 0, -10); // initial position
+    sphereMatrix.scale(scale * 0.04f); // set global scale
 }
 
-/* This function rotates all the objects using the "global" x, y, z coordinates
- * Note that on rotation these coordinates are updated */
+/* This function rotates all the objects*/
 void MainView::rotateObjects() {
-    // rotate cube
-    cubeMatrix.rotate(x, 1, 0, 0); // x-axis
-    cubeMatrix.rotate(y, 0, 1, 0); // y-axis
-    cubeMatrix.rotate(z, 0, 0, 1); // z-axis
+    rotation(&cubeMatrix); // rotate cube
+    rotation(&pyramidMatrix); // rotate pyramid
+    rotation(&sphereMatrix); // rotate sphere
+}
 
-    // rotate pyramid
-    pyramidMatrix.rotate(x, 1, 0, 0); // x-axis
-    pyramidMatrix.rotate(y, 0, 1, 0); // y-axis
-    pyramidMatrix.rotate(z, 0, 0, 1); // z-axis
+/* This function rotates the passed matrix using the "global" x, y, z coordinates
+ * Note that on rotation these coordinates are updated */
+void MainView::rotation(QMatrix4x4 *matrix) {
+    (*matrix).rotate(x, 1, 0, 0); // x-axis
+    (*matrix).rotate(y, 0, 1, 0); // y-axis
+    (*matrix).rotate(z, 0, 0, 1); // z-axis
 }
 
 /**

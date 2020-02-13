@@ -59,12 +59,13 @@ private:
     void initialiseCube(Vertex *cube);
     void initialisePyramid(Vertex *pyramid);
     void rotateObjects();
+    void rotation(QMatrix4x4 *matrix);
     void transScaleObjects();
 
     // Vertex array obj + vertex buffer obj
-    GLuint vao[2], vbo[2];
+    GLuint vao[3], vbo[3];
     // Transformation matrices
-    QMatrix4x4 cubeMatrix, pyramidMatrix, projectionTransf;
+    QMatrix4x4 cubeMatrix, pyramidMatrix, projectionTransf, sphereMatrix;
     // Locations of the model and projection uniforms
     GLint modelLocation, projectionLocation;
     // Declare the initial rotation values (at origin)
@@ -73,6 +74,8 @@ private:
     float z = 0.0f;
     // Declare the initial scale
     float scale = 1.0f;
+    // Declare the number of sphere vertices
+    int sizeSphere;
 };
 
 #endif // MAINVIEW_H
