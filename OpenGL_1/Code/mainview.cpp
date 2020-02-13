@@ -31,9 +31,6 @@ MainView::MainView(QWidget *parent) : QOpenGLWidget(parent) {
     // projection transformation
     projectionTransf = QMatrix4x4();
     projectionTransf.perspective(60, 1, 1, 100);
-
-    // rescale the sphere with 0.04
-    sphereMatrix.scale(0.04f);
 }
 
 /**
@@ -136,6 +133,9 @@ void MainView::initializeGL() {
 
     // load sphere from model
     Model sphereModel = Model(":/models/sphere.obj");
+    // scale model
+    sphereModel.unitize();
+    // retrieve scaled vertices
     QVector<QVector3D> sphereVertices = sphereModel.getVertices();
 
     // populate the sphere array with the vertices' coordinates of the sphere
@@ -250,7 +250,7 @@ void MainView::setRotation(int rotateX, int rotateY, int rotateZ) {
 
     // rotate objects
     rotateObjects();
-
+    // update the screen after changes
     update();
 }
 
@@ -266,7 +266,7 @@ void MainView::setScale(int newScale) {
 
     // rotate objects
     rotateObjects();
-
+    // update the screen after changes
     update();
 }
 
@@ -375,7 +375,7 @@ void MainView::transScaleObjects() {
     // sphere
     sphereMatrix.setToIdentity(); // reset
     sphereMatrix.translate(0, 0, -10); // initial position
-    sphereMatrix.scale(scale * 0.04f); // set global scale
+    sphereMatrix.scale(scale); // set global scale
 }
 
 /* This function rotates all the objects*/

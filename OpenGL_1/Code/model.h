@@ -95,6 +95,11 @@ private:
 
     bool hNorms;
     bool hTexs;
+
+    // Helpers
+    float maximum(float x, float y);
+    float minimum(float x, float y);
+    float absolute(float x);
 };
 
 #endif // MODEL_H
