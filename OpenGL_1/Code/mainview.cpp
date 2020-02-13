@@ -93,19 +93,23 @@ void MainView::initializeGL() {
 
     createShaderProgram();
 
-    // initialise vbo and vao as arrays (to fit more objects)
+    // initialise vbo, vao and ibo as arrays (to fit more objects)
     glGenBuffers(3, vbo);
     glGenVertexArrays(3, vao);
+    glGenBuffers(2, ibo);
 
-    // cube
-    Vertex cube[36];
-    initialiseCube(cube);
+    // CUBE
 
     // bind cube array and buffer
     glBindVertexArray(vao[0]);
     glBindBuffer(GL_ARRAY_BUFFER, vbo[0]);
-    // load cube data to the buffer
-    glBufferData(GL_ARRAY_BUFFER, sizeof(cube), cube, GL_STATIC_DRAW);
+
+    // bind indices array buffer
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo[0]);
+
+    // load cube (vertices + indices) data to the buffer
+    glBufferData(GL_ARRAY_BUFFER, sizeof(cubeVertices), cubeVertices, GL_STATIC_DRAW);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(cubeIndices), cubeIndices, GL_STATIC_DRAW);
 
     // cube coordinates
     glEnableVertexAttribArray(0);
@@ -114,15 +118,18 @@ void MainView::initializeGL() {
     glEnableVertexAttribArray(1);
     glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (GLvoid *) (3*sizeof(float)));
 
-    // pyramid
-    Vertex pyramid[18];
-    initialisePyramid(pyramid);
+    // PYRAMID
 
     // bind pyramid array and buffer
     glBindVertexArray(vao[1]);
     glBindBuffer(GL_ARRAY_BUFFER, vbo[1]);
-    // load pyramid data to the buffer
-    glBufferData(GL_ARRAY_BUFFER, sizeof(pyramid), pyramid, GL_STATIC_DRAW);
+
+    // bind indices array buffer
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo[1]);
+
+    // load pyramid (vertices + indices) data to the buffer
+    glBufferData(GL_ARRAY_BUFFER, sizeof(pyramidVertices), pyramidVertices, GL_STATIC_DRAW);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(pyramidIndices), pyramidIndices, GL_STATIC_DRAW);
 
     // pyramid coordinates
     glEnableVertexAttribArray(0);
@@ -131,9 +138,11 @@ void MainView::initializeGL() {
     glEnableVertexAttribArray(1);
     glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (GLvoid *) (3*sizeof(float)));
 
+    // SPHERE
+
     // load sphere from model
     Model sphereModel = Model(":/models/sphere.obj");
-    // scale model
+    // unitize model upon loading
     sphereModel.unitize();
     // retrieve scaled vertices
     QVector<QVector3D> sphereVertices = sphereModel.getVertices();
@@ -157,6 +166,7 @@ void MainView::initializeGL() {
     // bind sphere array and buffer
     glBindVertexArray(vao[2]);
     glBindBuffer(GL_ARRAY_BUFFER, vbo[2]);
+
     // load sphere data to the buffer
     glBufferData(GL_ARRAY_BUFFER, sizeof(sphere), sphere, GL_STATIC_DRAW);
 
@@ -201,12 +211,12 @@ void MainView::paintGL() {
     // Draw cube
     glBindVertexArray(vao[0]);
     glUniformMatrix4fv(modelLocation, 1, GL_FALSE, (GLfloat*) cubeMatrix.data());
-    glDrawArrays(GL_TRIANGLES, 0, 36);
+    glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_BYTE, (GLfloat*)0);
 
     // Draw pyramid
     glBindVertexArray(vao[1]);
     glUniformMatrix4fv(modelLocation, 1, GL_FALSE, (GLfloat*) pyramidMatrix.data());
-    glDrawArrays(GL_TRIANGLES, 0, 18);
+    glDrawElements(GL_TRIANGLES, 18, GL_UNSIGNED_BYTE, (GLfloat*)0);
 
     // Draw sphere
     glBindVertexArray(vao[2]);
@@ -276,88 +286,6 @@ void MainView::setShadingMode(ShadingMode shading) {
 }
 
 // --- Private helpers
-
-/* This function initialises all the faces of the cube, given the vertices*/
-void MainView::initialiseCube(Vertex cube[36]) {
-    // front face
-    cube[0] = vc0;
-    cube[1] = vc1;
-    cube[2] = vc3;
-    cube[3] = vc1;
-    cube[4] = vc2;
-    cube[5] = vc3;
-
-    // bottom face
-    cube[6] = vc0;
-    cube[7] = vc4;
-    cube[8] = vc5;
-    cube[9] = vc5;
-    cube[10] = vc1;
-    cube[11] = vc0;
-
-    // back face
-    cube[12] = vc7;
-    cube[13] = vc6;
-    cube[14] = vc5;
-    cube[15] = vc5;
-    cube[16] = vc4;
-    cube[17] = vc7;
-
-    // upper face
-    cube[18] = vc7;
-    cube[19] = vc3;
-    cube[20] = vc2;
-    cube[21] = vc6;
-    cube[22] = vc7;
-    cube[23] = vc2;
-
-    // left face
-    cube[24] = vc7;
-    cube[25] = vc4;
-    cube[26] = vc0;
-    cube[27] = vc0;
-    cube[28] = vc3;
-    cube[29] = vc7;
-
-    // right face
-    cube[30] = vc6;
-    cube[31] = vc2;
-    cube[32] = vc1;
-    cube[33] = vc1;
-    cube[34] = vc5;
-    cube[35] = vc6;
-}
-
-/* This function initialises all the faces of the pyramid, given the vertices*/
-void MainView::initialisePyramid(Vertex pyramid[18]) {
-    // front face
-    pyramid[0] = pv0;
-    pyramid[1] = pv1;
-    pyramid[2] = pv2;
-
-    // back face
-    pyramid[6] = pv0;
-    pyramid[7] = pv3;
-    pyramid[8] = pv4;
-
-    // left face
-    pyramid[9] = pv0;
-    pyramid[10] = pv4;
-    pyramid[11] = pv1;
-
-    // right face
-    pyramid[3] = pv0;
-    pyramid[4] = pv2;
-    pyramid[5] = pv3;
-
-    // pyramid base
-    pyramid[12] = pv1;
-    pyramid[13] = pv4;
-    pyramid[14] = pv2;
-    pyramid[15] = pv4;
-    pyramid[16] = pv3;
-    pyramid[17] = pv2;
-}
 
 /* This function rotates all the objects using the "global" scale value
  * Note that on scaling the value is updated */

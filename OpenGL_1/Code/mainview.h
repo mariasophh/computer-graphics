@@ -62,8 +62,8 @@ private:
     void rotation(QMatrix4x4 *matrix);
     void transScaleObjects();
 
-    // Vertex array obj + vertex buffer obj
-    GLuint vao[3], vbo[3];
+    // Vertex array obj, vertex buffer obj and index buffer obj
+    GLuint vao[3], vbo[3], ibo[2];
     // Transformation matrices
     QMatrix4x4 cubeMatrix, pyramidMatrix, projectionTransf, sphereMatrix;
     // Locations of the model and projection uniforms
