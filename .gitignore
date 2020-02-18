@@ -2,6 +2,9 @@
 .DS_Store
 .DS_Store?
 
+#Ray tracer build files
+RayTracer_1/build/
+
 # C++ objects and libs
 *.slo
 *.lo
