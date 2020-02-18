@@ -1,0 +1,40 @@
+This is a README file:
+
+# /Code/mainview.cpp
+
+MainView::MainView initializes the data-members for all the objects and projection transformation. It also does the default (as given in the assignment) translation and projection transformations.
+
+MainView::~MainView cleans up all the allocations (attributes arrays and buffer arrays).
+
+MainView::initializeGL initializes vbo, vao and ibo (index buffer object) for all objects. Moreover, here is where all the data is bound to these buffers. For the sphere, the model is also loaded within this function.
+
+MainView::createShaderProgram extracts the locations of the uniforms, as instructed in the assignment.
+
+MainView::paintGL draws the cube, pyramid and sphere with the first two being drawn using the function call glDrawElements and the latter being drawn using glDrawArrays.
+
+MainView::resizeGL updates the perspective according to the new ratio.
+
+MainView::setRotation rotates the objects.
+MainView::setScale scales the objects.
+Both functions make use of the helper functions: MainView::transScaleObjects, MainView::rotateObjects and MainView::rotation. 
+
+# /Code/model.cpp
+
+Model::unitize now unitizes the model by scaling so that it fits a cube of side length of 2 and origin at (0,0,0). 
+
+# /Headers
+
+vertex.h: defines the x,y,z coordinates and the rgb colours
+cube.h: defines cube vertices and indices
+pyramid.h: defines pyramid vertices and indices
+
+# BONUS ASSIGNMENTS IMPLEMENTED
+
+- INDEXED DRAWING: cube.h and pyramid.h define the vertices and the indices and the objects are being drawn in MainView::paintGL using glDrawElements.
+
+- MESH UNITIZING: Model::unitize has been implemented so that the mesh is unitized before the data is used. This function is called right after the model is loaded in MainView::initializeGL and before the vertices are being retrieved and used.
+
+
+# /Screenshots
+
+Screenshots of the RESULTS after each completed section are provided and named according to the section they illustrate. 
