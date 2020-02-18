@@ -30,7 +30,7 @@ This can be used like this:
 ```
 ./ray <path to .json file> [output .png file]
 # when in the build directory:
-./ray ../Scenes/other/scene01.json
+./ray ../Scenes/scene01.json
 ```
 Specifying an output is optional and by default an image will be created in
 the same directory as the source scene file with the `.json` extension replaced
@@ -97,3 +97,4 @@ by `.png`.
     [github](https://github.com/nlohmann/json).
     **Recommended:** Especially take a look at their README for more
     info on how to work with JSON files.
+
