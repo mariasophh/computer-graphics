@@ -22,15 +22,14 @@ Hit Sphere::intersect(Ray const &ray)
     * intersection point from the ray origin in *t (see example).
     ****************************************************/
 
-    // Placeholder for actual intersection calculation.
-    Vector OC = (position - ray.O).normalized();
+    Vector OC = (ray.O - position);
     
     // Quadratic equation terms
-    double a, b, c, discr, t1, t2, t;
+    double a, b, c, discr, t1, t2;
     
-    a = ray.dot(ray);
-    b = 2*(ray.dot(OC));
-    c = OC - radius * radius;
+    a = ray.D.dot(ray.D);
+    b = 2*(ray.D.dot(OC));
+    c = OC.dot(OC) - r * r;
     
     // Compute the discriminant, check if it's negative
     discr = b*b - 4*a*c;
@@ -38,19 +37,7 @@ Hit Sphere::intersect(Ray const &ray)
     if (discr < 0) {
         // Square root is imaginary => no intersection
         return Hit::NO_HIT();
-    } else {
-        // One or two solutions, compute t
-        t1 = fabs((-b + sqrt(discr)) / 2*a);
-        t2 = fabs((-b - sqrt(discr)) / 2*a);
-        
-        t = fmin(t1,t2);
     }
-    
-//    if (OC.dot(ray.D) < 0.999) {
-//        return Hit::NO_HIT();
-    }
-//    double t = 1000;
-
     /****************************************************
     * RT1.2: NORMAL CALCULATION
     *
@@ -62,7 +49,29 @@ Hit Sphere::intersect(Ray const &ray)
 
     Vector N /* = ... */;
 
-    return Hit(t, N);
+    // One or two solutions, compute t
+    t1 = (-b + sqrt(discr)) / (2*a);
+    t2 = (-b - sqrt(discr)) / (2*a);
+    
+    if (t1 >=0 && t2 >= 0) {
+        return Hit(fmin(t1, t2), N);
+    } else if (t1 < 0 && t2 >= 0) {
+        return Hit(t2, N);
+    } else if (t2 < 0 && t1 >= 0) {
+        return Hit(t1, N);
+    } else {
+        return Hit::NO_HIT();
+    }
+    
+    
+//    if (t1 <= t2 && t1 >= 0) {
+//        return Hit(t1, N);
+//    } else if (t2 < t1 && t2 >= 0) {
+//        return Hit(t2, N);
+//    } else {
+//        return Hit::NO_HIT();
+//    }
+//
 }
 
 Sphere::Sphere(Point const &pos, double radius)

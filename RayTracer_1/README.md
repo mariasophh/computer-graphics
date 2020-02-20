@@ -29,7 +29,7 @@ After compilation you should have the `ray` executable.
 This can be used like this:
 ```
 ./ray <path to .json file> [output .png file]
-# when in the build directory:
+# when2 in the build directory:
 ./ray ../Scenes/scene01.json
 ```
 Specifying an output is optional and by default an image will be created in
