@@ -52,8 +52,11 @@ Color Scene::trace(Ray const &ray)
     *        pow(a,b)           a to the power of b
     ****************************************************/
 
+    // Diffuse component
+    //Color diffuse = fmax(0, N.dot(ray.D)) * material.color * ray.color * material.kd;
     // Ambient component
-    Color color = material.ka * material.color;
+    Color ambient = material.color * material.ka;
+    Color color = /*diffuse +*/ ambient;
 
     //Color color = (N+1)/2;
 
