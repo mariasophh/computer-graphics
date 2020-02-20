@@ -52,14 +52,50 @@ Color Scene::trace(Ray const &ray)
     *        pow(a,b)           a to the power of b
     ****************************************************/
 
-    // Diffuse component
-    Color diffuse =  fmax(0,N.dot((ray.O + min_hit.t * ray.D).normalized())) * material.color * material.kd;
+    /*
+    // Normalized light vector
+    Vector L = (lights[0]->position - hit).normalized();
+    // Normalized reflection vector
+    Vector R = (2 * (L.dot(N)) * N - L).normalized();
+
+    // Diffuse and specular elements
+    double specular_elem=  pow(fmax(0, V.dot(R)), material.n);
+    double diffuse_elem = fmax(0,N.dot(L));
+
     // Ambient component
     Color ambient = material.color * material.ka;
-    Color color = diffuse + ambient;
+    // Diffuse component
+    Color diffuse = diffuse_elem * material.color * lights[0]->color * material.kd;
+    // Specular component
+    Color specular = specular_elem * lights[0]->color * material.ks;
 
-    //Color color = (N+1)/2;
+    // Color according to Phong's model
+    Color color = diffuse + ambient + specular;
 
+    */
+
+    // Ambient component
+    Color ambient = material.color * material.ks;
+    Color diffuse = Color(0,0,0);
+    Color specular = Color(0,0,0);
+
+    for (unsigned idx = 0; idx != lights.size(); ++idx) {
+        // Normalized light vector
+        Vector L = (lights[idx]->position - hit).normalized();
+        // Normalized reflection vector
+        Vector R = (2 * (L.dot(N)) * N - L).normalized();
+
+        // Diffuse and specular elements
+        double specular_elem=  pow(fmax(0, V.dot(R)), material.n);
+        double diffuse_elem = fmax(0,N.dot(L));
+
+        // Sum of diffuse components
+        diffuse += diffuse_elem * material.color * lights[idx]->color * material.kd;
+        // Sum of specular components
+        specular += specular_elem * lights[idx]->color * material.ks;
+    }
+
+    Color color = ambient + diffuse + specular;
     return color;
 }
 

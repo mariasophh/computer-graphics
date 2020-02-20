@@ -63,8 +63,11 @@ Hit Sphere::intersect(Ray const &ray)
         return Hit::NO_HIT();
     }
 
-    Vector N  = (ray.O + t * ray.D - position).normalized();
-    
+    Point intersection = ray.at(t);
+    Vector N  = (intersection - position).normalized();
+    // Normal: directed towards ray origin
+    N = (N.dot(ray.D) < 0) ? N : -N;
+
     return Hit(t, N);
 
 }
