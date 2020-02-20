@@ -24,10 +24,32 @@ Hit Sphere::intersect(Ray const &ray)
 
     // Placeholder for actual intersection calculation.
     Vector OC = (position - ray.O).normalized();
-    if (OC.dot(ray.D) < 0.999) {
+    
+    // Quadratic equation terms
+    double a, b, c, discr, t1, t2, t;
+    
+    a = ray.dot(ray);
+    b = 2*(ray.dot(OC));
+    c = OC - radius * radius;
+    
+    // Compute the discriminant, check if it's negative
+    discr = b*b - 4*a*c;
+    
+    if (discr < 0) {
+        // Square root is imaginary => no intersection
         return Hit::NO_HIT();
+    } else {
+        // One or two solutions, compute t
+        t1 = fabs((-b + sqrt(discr)) / 2*a);
+        t2 = fabs((-b - sqrt(discr)) / 2*a);
+        
+        t = fmin(t1,t2);
     }
-    double t = 1000;
+    
+//    if (OC.dot(ray.D) < 0.999) {
+//        return Hit::NO_HIT();
+    }
+//    double t = 1000;
 
     /****************************************************
     * RT1.2: NORMAL CALCULATION
