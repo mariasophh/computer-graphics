@@ -52,7 +52,7 @@ Color Scene::trace(Ray const &ray)
     *        pow(a,b)           a to the power of b
     ****************************************************/
 
-    /*
+    /* Ex 3.3 below
     // Normalized light vector
     Vector L = (lights[0]->position - hit).normalized();
     // Normalized reflection vector
@@ -71,15 +71,14 @@ Color Scene::trace(Ray const &ray)
 
     // Color according to Phong's model
     Color color = diffuse + ambient + specular;
-
     */
 
     // Ambient component
-    Color ambient = material.color * material.ks;
+    Color ambient = material.color * material.ka;
     Color diffuse = Color(0,0,0);
     Color specular = Color(0,0,0);
 
-    for (unsigned idx = 0; idx != lights.size(); ++idx) {
+    for (unsigned idx = 0; idx < lights.size(); idx++) {
         // Normalized light vector
         Vector L = (lights[idx]->position - hit).normalized();
         // Normalized reflection vector
@@ -87,7 +86,7 @@ Color Scene::trace(Ray const &ray)
 
         // Diffuse and specular elements
         double specular_elem=  pow(fmax(0, V.dot(R)), material.n);
-        double diffuse_elem = fmax(0,N.dot(L));
+        double diffuse_elem = fmax(0, L.dot(N));
 
         // Sum of diffuse components
         diffuse += diffuse_elem * material.color * lights[idx]->color * material.kd;
@@ -96,6 +95,7 @@ Color Scene::trace(Ray const &ray)
     }
 
     Color color = ambient + diffuse + specular;
+
     return color;
 }
 
