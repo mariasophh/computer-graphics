@@ -53,10 +53,10 @@ Color Scene::trace(Ray const &ray)
     ****************************************************/
 
     // Diffuse component
-    //Color diffuse = fmax(0, N.dot(ray.D)) * material.color * ray.color * material.kd;
+    Color diffuse =  fmax(0,N.dot((ray.O + min_hit.t * ray.D).normalized())) * material.color * material.kd;
     // Ambient component
     Color ambient = material.color * material.ka;
-    Color color = /*diffuse +*/ ambient;
+    Color color = diffuse + ambient;
 
     //Color color = (N+1)/2;
 
