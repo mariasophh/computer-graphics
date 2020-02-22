@@ -12,7 +12,7 @@
             "filename": "models/goat.obj",
             "position": [200, 200, 100],
             "rotation": [1.0471, 0.6283, 0.4487],
-            "scale": [100.0, 100.0, 100.0],
+            "scale": [0.1, 0.1, 0.1],
             "material":
             {
                 "color": [1.0, 0.0, 0.0],
