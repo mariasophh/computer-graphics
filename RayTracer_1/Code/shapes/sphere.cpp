@@ -23,17 +23,17 @@ Hit Sphere::intersect(Ray const &ray)
     ****************************************************/
 
     Vector OC = (ray.O - position);
-    
+
     // Quadratic equation terms
-    double a, b, c, discr, t1, t2;
-    
+    double a, b, c, discr, t1, t2, t;
+
     a = ray.D.dot(ray.D);
     b = 2*(ray.D.dot(OC));
     c = OC.dot(OC) - r * r;
-    
+
     // Compute the discriminant, check if it's negative
     discr = b*b - 4*a*c;
-    
+
     if (discr < 0) {
         // Square root is imaginary => no intersection
         return Hit::NO_HIT();
@@ -47,35 +47,33 @@ Hit Sphere::intersect(Ray const &ray)
     * Insert calculation of the sphere's normal at the intersection point.
     ****************************************************/
 
-    Vector N /* = ... */;
-
     // One or two solutions, compute t
     t1 = (-b + sqrt(discr)) / (2*a);
     t2 = (-b - sqrt(discr)) / (2*a);
-    
-    if (t1 >=0 && t2 >= 0) {
-        return Hit(fmin(t1, t2), N);
+
+    // Interection occurs when the solution is positive
+    // In case of two solutions, we take the least positive one
+    if (t1 >= 0 && t2 >= 0) {
+        t = fmin(t1,t2);
     } else if (t1 < 0 && t2 >= 0) {
-        return Hit(t2, N);
+        t = t2;
     } else if (t2 < 0 && t1 >= 0) {
-        return Hit(t1, N);
+        t = t1;
     } else {
         return Hit::NO_HIT();
     }
-    
-    
-//    if (t1 <= t2 && t1 >= 0) {
-//        return Hit(t1, N);
-//    } else if (t2 < t1 && t2 >= 0) {
-//        return Hit(t2, N);
-//    } else {
-//        return Hit::NO_HIT();
-//    }
-//
+
+    Point intersection = ray.at(t);
+    Vector N  = (intersection - position).normalized();
+    // Normal: directed towards ray origin
+    N = (N.dot(ray.D) < 0) ? N : -N;
+
+    return Hit(t, N);
+
 }
 
 Sphere::Sphere(Point const &pos, double radius)
 :
-    position(pos),
-    r(radius)
+position(pos),
+r(radius)
 {}
