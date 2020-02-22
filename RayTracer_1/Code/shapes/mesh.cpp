@@ -56,6 +56,7 @@ Mesh::Mesh(string const &filename, Point const &position, Vector const &rotation
 
         // Rotation
         // Rotation around the x axis
+
         double cosine = cos(rotation.x);
         double sine = sin(rotation.x);
         v0 = Point(v0.x, v0.y*cosine - v0.z*sine, v0.y*sine + v0.z*cosine);
@@ -74,7 +75,7 @@ Mesh::Mesh(string const &filename, Point const &position, Vector const &rotation
         sine = sin(rotation.z);
         v0 = Point(v0.x*cosine - v0.y*sine, v0.x*sine + v0.y*cosine, v0.z);
         v1 = Point(v1.x*cosine - v1.y*sine, v1.x*sine + v1.y*cosine, v1.z);
-        v2 = Point(v2.x*cosine - v2.y*sine, v2.x*sine + v2.y*cosine, v0.z);
+        v2 = Point(v2.x*cosine - v2.y*sine, v2.x*sine + v2.y*cosine, v2.z);
 
         // Translation
         v0 = (v0 + position);
