@@ -5,6 +5,8 @@
 
 class Quad: public Object
 {
+    std::vector<ObjectPtr> quad_triangles;
+
     public:
         Quad(Point const &v0,
              Point const &v1,
