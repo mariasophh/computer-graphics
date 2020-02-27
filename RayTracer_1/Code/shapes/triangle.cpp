@@ -3,46 +3,49 @@
 #include <cmath>
 
 Hit Triangle::intersect(Ray const &ray)
-{    // Implementation of Möller-Trumbore algorithm
-    double eps = std::numeric_limits<double>::epsilon();
-    double t, u, v;
+{
+  // dot product between N and ray's direction
+  double dotProdND = N.dot(ray.D);
 
-    // Edges of the trianlge (with vertices v0, v1, v2)
-    Triple edge1 = v1-v0;
-    Triple edge2 = v2-v0;
+  // if the plane and the ray are parallel (i.e. dotProdND -> 0) return no hit
+  if(fabs(dotProdND) < std::numeric_limits<double>::epsilon())
+  {
+    return Hit::NO_HIT();
+  }
 
-    // Corss product between vector direction D and edge 2
-    Vector h = ray.D.cross(edge2);
-    // Calculate determinant
-    double det = (h).dot(edge1);
-    // Inverse of determinant
-    double inv_det = 1 / det;
-    //Check if determinant is close to 0 =>> ray is parallel to triangle
-    if ( det > -eps && det < eps) return Hit::NO_HIT();
+  // plane equation Ax + By + Cz + D = 0 where N = (A, B, C)
+  double D = N.dot(v1);
+  // substitute P = ray.O + t * ray.D in plane equation above
+  // compute t
+  double t =  (N.dot(ray.O) - D) / N.dot(ray.D);
 
-    // Vector from first vertex of triangle to origin of ray: s
-    Triple s = ray.O - v0;
-    // Cross product between triangle's first edge and s: q
-    Triple q = s.cross(edge1);
+  // triangle behind the ray (no hit)
+  if(t < 0) return Hit::NO_HIT();
 
-    // Calculate u, v and t
-    u = s.dot(h) * inv_det;
-    if (u < 0.0 || u > 1.0) return Hit::NO_HIT();
+  // compute P
+  Vector P = ray.O + t * ray.D;
 
-    v = ray.D.dot(q) * inv_det;
-    if (v < 0.0 || v + u > 1.0) return Hit::NO_HIT();
+  // check P's position wrt triangle
+  Vector v0p, v1p, v2p, F;
+  // edge 1 : v0v1
+  v0p = P - v0;
+  F = x_edge.cross(v0p);
+  if(N.dot(F) < 0) return Hit::NO_HIT();
 
-    // Calculate intersection point
-    t = edge2.dot(q) * inv_det;
+  // edge 2: v2v0
+  v2p = P - v2;
+  F = y_edge.cross(v2p);
+  if(N.dot(F) < 0) return Hit::NO_HIT();
 
-    // Normal: directed towards ray origin
-    N = (N.dot(ray.D) < 0) ? N : -N;
+  // edge 3: v1v2
+  v1p = P - v1;
+  F = z_edge.cross(v1p);
+  if(N.dot(F) < 0) return Hit::NO_HIT();
 
-    if (t > eps) {
-            return Hit(t,N);
-    } else {
-        return Hit::NO_HIT();
-    }
+  // direct the normal towards ray's origin
+  N = (N.dot(ray.D) < 0) ? N : -N;
+
+  return Hit(t, N);
 }
 
 Triangle::Triangle(Point const &v0,
@@ -52,12 +55,14 @@ Triangle::Triangle(Point const &v0,
     v0(v0),
     v1(v1),
     v2(v2),
-    N()
+    N(),
+    x_edge(),
+    y_edge(),
+    z_edge()
 {
-    // Calculate the surface normal here and store it in the N,
-    // which is declared in the header. It can then be used in the intersect function.
-
-    // Components of normal lie in the normal plane, can be calc. by doing the
-    // cross product of two vectors which span the plane
-    N = (v1-v0).cross(v2-v0).normalized();
+  x_edge = v1-v0; // edge along x-axis
+  y_edge = v0-v2; // edge along y-axis
+  z_edge = v2-v1; // edge along z-axis
+  // normalized normal vector: parallel to z-axis
+  N = ((v1-v0).cross(v2-v0)).normalized();
 }
