@@ -6,3 +6,6 @@ This is a README file.
 # NORMAL SHADER: 
 - We have followed the instructions given in the assignment. Two screenshots (with/without the normal matrix) can be found under /Screenshots. Note that the "face" of the cat object stays the same, but the back of the cat without the normal matrix has different colors (which appear to be brighter). This is because the relative angles of the normals are not preserved for the vertices that lie at the "back" of the cat when the model is transformed (e.g. rotated). Moreover, the cats appear bigger because we have used unitize with a cube side length of 2. 
 
+# SELECTING SHADERS:
+- We have followed the instructions given in the assignment. Under /Screenshots you can find the results with the enabled (not yet implemented) Gouraud and Phong shaders. Note that the Gouraud model is darker (division by 3) than the Phong model (division by 2). 
+

@@ -32,6 +32,9 @@ public:
     void setShadingMode(ShadingMode shading);
     QVector<quint8> imageToBytes(QImage image);
 
+    // Different shades
+    GLuint shade;
+
 protected:
     void initializeGL();
     void resizeGL(int newWidth, int newHeight);
@@ -55,10 +58,11 @@ private:
     QOpenGLDebugLogger debugLogger;
     QTimer timer; // timer used for animation
 
-    QOpenGLShaderProgram shaderProgram;
-    GLint uniformModelViewTransform;
-    GLint uniformProjectionTransform;
-    GLint uniformNormalTransform;
+    // Three shaders, each with its own uniforms
+    QOpenGLShaderProgram shaderPrograms[3];
+    GLint uniformModelViewTransforms[3];
+    GLint uniformProjectionTransforms[3];
+    GLint uniformNormalTransforms[3];
 
     // Mesh values
     GLuint meshVAO;

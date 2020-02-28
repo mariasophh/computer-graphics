@@ -79,17 +79,34 @@ void MainView::initializeGL() {
 }
 
 void MainView::createShaderProgram() {
-    // Create shader program
-    shaderProgram.addShaderFromSourceFile(QOpenGLShader::Vertex,
-                                           ":/shaders/vertshader.glsl");
-    shaderProgram.addShaderFromSourceFile(QOpenGLShader::Fragment,
-                                           ":/shaders/fragshader.glsl");
-    shaderProgram.link();
+    // Create shader programs
+    // NORMAL SHADER
+    shaderPrograms[NORMAL].addShaderFromSourceFile(QOpenGLShader::Vertex,
+                                           ":/shaders/vertshader_normal.glsl");
+    shaderPrograms[NORMAL].addShaderFromSourceFile(QOpenGLShader::Fragment,
+                                           ":/shaders/fragshader_normal.glsl");
+    shaderPrograms[NORMAL].link();
 
-    // Get the uniforms
-    uniformModelViewTransform = shaderProgram.uniformLocation("modelViewTransform");
-    uniformProjectionTransform = shaderProgram.uniformLocation("projectionTransform");
-    uniformNormalTransform = shaderProgram.uniformLocation("normalTransform");
+    // GOURAUD SHADER
+    shaderPrograms[GOURAUD].addShaderFromSourceFile(QOpenGLShader::Vertex,
+                                           ":/shaders/vertshader_gouraud.glsl");
+    shaderPrograms[GOURAUD].addShaderFromSourceFile(QOpenGLShader::Fragment,
+                                           ":/shaders/fragshader_gouraud.glsl");
+    shaderPrograms[GOURAUD].link();
+
+    // PHONG SHADER
+    shaderPrograms[PHONG].addShaderFromSourceFile(QOpenGLShader::Vertex,
+                                           ":/shaders/vertshader_phong.glsl");
+    shaderPrograms[PHONG].addShaderFromSourceFile(QOpenGLShader::Fragment,
+                                           ":/shaders/fragshader_phong.glsl");
+    shaderPrograms[PHONG].link();
+
+    // Get the uniforms for each shader
+    for(GLuint i=0; i<3; i++) {
+        uniformModelViewTransforms[i] = shaderPrograms[i].uniformLocation("modelViewTransform");
+        uniformProjectionTransforms[i] = shaderPrograms[i].uniformLocation("projectionTransform");
+        uniformNormalTransforms[i] = shaderPrograms[i].uniformLocation("normalTransform");
+    }
 }
 
 void MainView::loadMesh() {
@@ -153,16 +170,16 @@ void MainView::paintGL() {
     // Clear the screen before rendering
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-    shaderProgram.bind();
+    shaderPrograms[shade].bind();
 
-    glUniformMatrix4fv(uniformProjectionTransform, 1, GL_FALSE, projectionTransform.data());
-    glUniformMatrix4fv(uniformModelViewTransform, 1, GL_FALSE, meshTransform.data());
-    glUniformMatrix3fv(uniformNormalTransform, 1, GL_FALSE, meshTransform.normalMatrix().data());
+    glUniformMatrix4fv(uniformProjectionTransforms[shade], 1, GL_FALSE, projectionTransform.data());
+    glUniformMatrix4fv(uniformModelViewTransforms[shade], 1, GL_FALSE, meshTransform.data());
+    glUniformMatrix3fv(uniformNormalTransforms[shade], 1, GL_FALSE, meshTransform.normalMatrix().data());
 
     glBindVertexArray(meshVAO);
     glDrawArrays(GL_TRIANGLES, 0, meshSize);
 
-    shaderProgram.release();
+    shaderPrograms[shade].release();
 }
 
 /**
@@ -214,8 +231,7 @@ void MainView::setScale(int newScale) {
 }
 
 void MainView::setShadingMode(ShadingMode shading) {
-    qDebug() << "Changed shading to" << shading;
-    Q_UNIMPLEMENTED();
+   shade = shading;
 }
 
 // --- Private helpers
