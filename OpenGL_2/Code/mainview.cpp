@@ -89,26 +89,33 @@ void MainView::createShaderProgram() {
     // Get the uniforms
     uniformModelViewTransform = shaderProgram.uniformLocation("modelViewTransform");
     uniformProjectionTransform = shaderProgram.uniformLocation("projectionTransform");
+    uniformNormalTransform = shaderProgram.uniformLocation("normalTransform");
 }
 
 void MainView::loadMesh() {
-    Model model(":/models/cube.obj");
+    Model model(":/models/cat.obj");
+    // unitize model upon retrieval to fit a cube with side length 1
+    model.unitize(2);
+
     QVector<QVector3D> vertexCoords = model.getVertices();
+
+    // retrieve the normals of the object
+    QVector<QVector3D> vertexNormals = model.getNormals();
+
+    // store the size
+    meshSize = vertexCoords.size();
 
     QVector<float> meshData;
     meshData.reserve(2 * 3 * vertexCoords.size());
 
-    for (auto coord : vertexCoords)
-    {
-        meshData.append(coord.x());
-        meshData.append(coord.y());
-        meshData.append(coord.z());
-        meshData.append(static_cast<float>(rand()) / RAND_MAX);
-        meshData.append(static_cast<float>(rand()) / RAND_MAX);
-        meshData.append(static_cast<float>(rand()) / RAND_MAX);
+    for(GLuint i=0; i<meshSize; i++) {
+        meshData.append(vertexCoords[i].x());
+        meshData.append(vertexCoords[i].y());
+        meshData.append(vertexCoords[i].z());
+        meshData.append(vertexNormals[i].x());
+        meshData.append(vertexNormals[i].y());
+        meshData.append(vertexNormals[i].z());
     }
-
-    meshSize = vertexCoords.size();
 
     // Generate VAO
     glGenVertexArrays(1, &meshVAO);
@@ -148,9 +155,9 @@ void MainView::paintGL() {
 
     shaderProgram.bind();
 
-    // Set the projection matrix
     glUniformMatrix4fv(uniformProjectionTransform, 1, GL_FALSE, projectionTransform.data());
     glUniformMatrix4fv(uniformModelViewTransform, 1, GL_FALSE, meshTransform.data());
+    glUniformMatrix3fv(uniformNormalTransform, 1, GL_FALSE, meshTransform.normalMatrix().data());
 
     glBindVertexArray(meshVAO);
     glDrawArrays(GL_TRIANGLES, 0, meshSize);

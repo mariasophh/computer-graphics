@@ -1,8 +1,8 @@
-This is a README file
+This is a README file.
 
-When submitting your assignment, describe (briefly) the changes you made and what difficulties you encountered in this file.
+# BONUS: 
+- Model::unitize(float cubeSLen) takes the side length of the cube that will fit the model. Besides scaling the model to fit within a cube with the passed side length, this function centers the model around the origin. Note that this function is called upon loading the model and before retrieving its vertices. 
 
-Also describe what controls (key short-cuts, mouse clicks, mouse movement etc) and possible bonus assignments you implemented, so we can check them more easily.
-
-If you have any suggestions/feedback for improving the practical assignments or support from teaching assistants, you may include it here OR post in anonymously on Nestor under Feedback.
+# NORMAL SHADER: 
+- We have followed the instructions given in the assignment. Two screenshots (with/without the normal matrix) can be found under /Screenshots. Note that the "face" of the cat object stays the same, but the back of the cat without the normal matrix has different colors (which appear to be brighter). This is because the relative angles of the normals are not preserved for the vertices that lie at the "back" of the cat when the model is transformed (e.g. rotated). Moreover, the cats appear bigger because we have used unitize with a cube side length of 2. 
 
