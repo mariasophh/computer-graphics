@@ -31,7 +31,7 @@ void main()
     // note that KA = materialKs[0], KD = materialKs[1], KS = materialKs[2]
     float ambient = materialKs[0];
     float diffuse = max(0.0, dot(N, L)) * materialKs[1];
-    float specular = pow(max(0.0, dot(R, V)), 1.0)  * materialKs[2];
+    float specular = pow(max(0.0, dot(R, V)), 1.0)  * materialKs[2]; // material normal 1.0
 
     vec4 textureColor = texture(samplerUniform, textureCoords);
     fNormal = ambient * textureColor + (diffuse + specular) * (lightColor, 1.0) * textureColor;

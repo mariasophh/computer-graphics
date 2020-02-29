@@ -32,8 +32,12 @@ MainView::~MainView() {
     makeCurrent();
 
     destroyModelBuffers();
-
+    // delete texture
     glDeleteTextures(1, &texture);
+    // disable attribute arrays
+    glDisableVertexAttribArray(0);
+    glDisableVertexAttribArray(1);
+    glDisableVertexAttribArray(2);
 }
 
 // --- OpenGL initialization
@@ -59,7 +63,6 @@ void MainView::initializeGL() {
     QString glVersion;
     glVersion = reinterpret_cast<const char*>(glGetString(GL_VERSION));
     qDebug() << ":: Using OpenGL" << qPrintable(glVersion);
-
     // Enable depth buffer
     glEnable(GL_DEPTH_TEST);
 

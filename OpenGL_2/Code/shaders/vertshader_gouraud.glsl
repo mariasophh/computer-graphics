@@ -43,7 +43,7 @@ void main()
     // note that KA = materialKs[0], KD = materialKs[1], KS = materialKs[2]
     ambient = materialKs[0];
     diffuse = max(0.0, dot(N, L)) * materialKs[1];
-    specular = pow(max(0.0, dot(R, V)), 1.0)  * materialKs[2];
+    specular = pow(max(0.0, dot(R, V)), 1.0)  * materialKs[2]; // material normal 1.0
 
     // pass the coordinates to the fragment shader
     textureCoords = textCoordinates_in;
