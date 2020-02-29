@@ -106,6 +106,10 @@ void MainView::createShaderProgram() {
         uniformModelViewTransforms[i] = shaderPrograms[i].uniformLocation("modelViewTransform");
         uniformProjectionTransforms[i] = shaderPrograms[i].uniformLocation("projectionTransform");
         uniformNormalTransforms[i] = shaderPrograms[i].uniformLocation("normalTransform");
+        uniformLightColors[i] = shaderPrograms[i].uniformLocation("lightColor");
+        uniformLightPositions[i] = shaderPrograms[i].uniformLocation("lightPosition");
+        uniformMaterialColors[i] = shaderPrograms[i].uniformLocation("materialColor");
+        uniformMaterialKs[i] = shaderPrograms[i].uniformLocation("materialKs");
     }
 }
 
@@ -175,6 +179,11 @@ void MainView::paintGL() {
     glUniformMatrix4fv(uniformProjectionTransforms[shade], 1, GL_FALSE, projectionTransform.data());
     glUniformMatrix4fv(uniformModelViewTransforms[shade], 1, GL_FALSE, meshTransform.data());
     glUniformMatrix3fv(uniformNormalTransforms[shade], 1, GL_FALSE, meshTransform.normalMatrix().data());
+
+    glUniform3fv(uniformLightColors[shade], 1, lightColor);
+    glUniform3fv(uniformLightPositions[shade], 1, lightPosition);
+    glUniform3fv(uniformMaterialColors[shade], 1, materialColor);
+    glUniform3fv(uniformMaterialKs[shade], 1, materialKs);
 
     glBindVertexArray(meshVAO);
     glDrawArrays(GL_TRIANGLES, 0, meshSize);

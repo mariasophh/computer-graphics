@@ -64,6 +64,23 @@ private:
     GLint uniformProjectionTransforms[3];
     GLint uniformNormalTransforms[3];
 
+    // light position, material and color uniforms
+    GLint uniformLightColors[3];
+    GLint uniformLightPositions[3];
+    GLint uniformMaterialColors[3];
+    GLint uniformMaterialKs[3];
+
+    // Gouraud + Phong model constants
+
+    // light position
+    GLfloat lightPosition[3] = {150, 200, 180};
+    // random color of the material
+    GLfloat materialColor[3] = {rand() / (float) RAND_MAX, rand() / (float) RAND_MAX, rand() / (float) RAND_MAX};
+    // material kA, kD, kS values
+    GLfloat materialKs[3] = {0.2, 0.3, 0.4};
+    // white light color
+    GLfloat lightColor[3] = {1, 1, 1};
+
     // Mesh values
     GLuint meshVAO;
     GLuint meshVBO;
