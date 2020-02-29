@@ -6,19 +6,19 @@
 // Specify the input locations of attributes
 layout (location = 0) in vec3 vertCoordinates_in;
 layout (location = 1) in vec3 vertNormal_in;
+layout (location = 2) in vec2 textCoordinates_in;
 
 // Specify the Uniforms of the vertex shader
 uniform mat4 modelViewTransform;
 uniform mat4 projectionTransform;
 uniform mat3 normalTransform;
 
-uniform vec3 materialColor;
 uniform vec3 materialKs;
 uniform vec3 lightPosition;
-uniform vec3 lightColor;
 
 // Specify the output of the vertex stage
-out vec3 vertNormal;
+out float ambient, diffuse, specular;
+out vec2 textureCoords;
 
 void main()
 {
@@ -41,10 +41,10 @@ void main()
 
     // compute shading components
     // note that KA = materialKs[0], KD = materialKs[1], KS = materialKs[2]
-    vec3 ambient = materialColor * materialKs[0];
-    vec3 diffuse = max(0.0, dot(N, L)) * lightColor * materialColor * materialKs[1];
-    vec3 specular = pow(max(0.0, dot(R, V)), 1.0) * lightColor * materialKs[2];
+    ambient = materialKs[0];
+    diffuse = max(0.0, dot(N, L)) * materialKs[1];
+    specular = pow(max(0.0, dot(R, V)), 1.0)  * materialKs[2];
 
-    // sum of the shading components
-    vertNormal = ambient + diffuse + specular;
+    // pass the coordinates to the fragment shader
+    textureCoords = textCoordinates_in;
 }

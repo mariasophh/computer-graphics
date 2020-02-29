@@ -6,6 +6,7 @@
 // Specify the input locations of attributes
 layout (location = 0) in vec3 vertCoordinates_in;
 layout (location = 1) in vec3 vertNormal_in;
+layout (location = 2) in vec2 textCoordinates_in;
 
 // Specify the Uniforms of the vertex shader
 uniform mat4 modelViewTransform;
@@ -16,6 +17,7 @@ uniform vec3 lightPosition;
 
 // Specify the output of the vertex stage
 out vec3 lightPositionRel, vertexPos, N;
+out vec2 textureCoords;
 
 void main()
 {
@@ -27,4 +29,7 @@ void main()
     // vertex position and vertex normal
     vertexPos = vec3(modelViewTransform * vec4(vertCoordinates_in, 1.0));
     N = normalize(normalTransform * vertNormal_in);
+
+    // pass the coordinates to the fragment shader
+    textureCoords = textCoordinates_in;
 }

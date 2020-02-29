@@ -34,6 +34,9 @@ public:
 
     // Different shades
     GLuint shade;
+    // Texture ptr
+    GLuint texture;
+    GLuint samplerUniform;
 
 protected:
     void initializeGL();
@@ -94,6 +97,7 @@ private:
 
     void createShaderProgram();
     void loadMesh();
+    void loadTexture(QString file, GLuint texturePtr);
 
     void destroyModelBuffers();
 

@@ -5,11 +5,13 @@
 
 // Specify the inputs to the fragment shader
 in vec3 lightPositionRel, vertexPos, N;
+in vec2 textureCoords;
 
 // Specify the Uniforms of the fragment shaders
 uniform vec3 lightColor;
 uniform vec3 materialColor;
 uniform vec3 materialKs;
+uniform sampler2D samplerUniform;
 
 // Specify the output of the fragment shader
 // Usually a vec4 describing a color (Red, Green, Blue, Alpha/Transparency)
@@ -27,10 +29,14 @@ void main()
 
     // compute shading components
     // note that KA = materialKs[0], KD = materialKs[1], KS = materialKs[2]
-    vec3 ambient = materialColor * materialKs[0];
-    vec3 diffuse = max(0.0, dot(N, L)) * lightColor * materialColor * materialKs[1];
-    vec3 specular = pow(max(0.0, dot(R, V)), 1.0) * lightColor * materialKs[2];
+    float ambient = materialKs[0];
+    float diffuse = max(0.0, dot(N, L)) * materialKs[1];
+    float specular = pow(max(0.0, dot(R, V)), 1.0)  * materialKs[2];
 
-    // sum of the shading components
-    fNormal = vec4(ambient + diffuse + specular, 1.0);
+    vec4 textureColor = texture(samplerUniform, textureCoords);
+    fNormal = ambient * textureColor + (diffuse + specular) * (lightColor, 1.0) * textureColor;
+
+    // WITHOUT TEXTURE
+//    vec3 color = ambient * materialColor + diffuse * materialColor * lightColor + specular * lightColor;
+//    fNormal = vec4(color, 1.0);
 }

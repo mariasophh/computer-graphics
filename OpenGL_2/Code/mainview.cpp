@@ -32,6 +32,8 @@ MainView::~MainView() {
     makeCurrent();
 
     destroyModelBuffers();
+
+    glDeleteTextures(1, &texture);
 }
 
 // --- OpenGL initialization
@@ -72,6 +74,7 @@ void MainView::initializeGL() {
 
     createShaderProgram();
     loadMesh();
+    loadTexture(":/textures/rug_logo.png", texture);
 
     // Initialize transformations
     updateProjectionTransform();
@@ -111,6 +114,9 @@ void MainView::createShaderProgram() {
         uniformMaterialColors[i] = shaderPrograms[i].uniformLocation("materialColor");
         uniformMaterialKs[i] = shaderPrograms[i].uniformLocation("materialKs");
     }
+
+    samplerUniform = shaderPrograms[PHONG].uniformLocation("samplerUniform");
+    samplerUniform = shaderPrograms[GOURAUD].uniformLocation("samplerUniform");
 }
 
 void MainView::loadMesh() {
@@ -118,16 +124,22 @@ void MainView::loadMesh() {
     // unitize model upon retrieval to fit a cube with side length 1
     model.unitize(2);
 
+    // generate texture
+    glGenTextures(1, &texture);
+
     QVector<QVector3D> vertexCoords = model.getVertices();
 
     // retrieve the normals of the object
     QVector<QVector3D> vertexNormals = model.getNormals();
 
+    // retrieve the textures of the object
+    QVector<QVector2D> vertexTextures = model.getTextureCoords();
+
     // store the size
     meshSize = vertexCoords.size();
 
     QVector<float> meshData;
-    meshData.reserve(2 * 3 * vertexCoords.size());
+    meshData.reserve(8 * vertexCoords.size());
 
     for(GLuint i=0; i<meshSize; i++) {
         meshData.append(vertexCoords[i].x());
@@ -136,6 +148,8 @@ void MainView::loadMesh() {
         meshData.append(vertexNormals[i].x());
         meshData.append(vertexNormals[i].y());
         meshData.append(vertexNormals[i].z());
+        meshData.append(vertexTextures[i].x());
+        meshData.append(vertexTextures[i].y());
     }
 
     // Generate VAO
@@ -150,15 +164,43 @@ void MainView::loadMesh() {
     glBufferData(GL_ARRAY_BUFFER, meshData.size() * sizeof(float), meshData.data(), GL_STATIC_DRAW);
 
     // Set vertex coordinates to location 0
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), 0);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), 0);
     glEnableVertexAttribArray(0);
 
     // Set colour coordinates to location 1
-    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), reinterpret_cast<void*>(3 * sizeof(float)));
+    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), reinterpret_cast<void*>(3 * sizeof(float)));
     glEnableVertexAttribArray(1);
+
+    // Set texture coordinates to location 2
+    glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), reinterpret_cast<void*>(6 * sizeof(float)));
+    glEnableVertexAttribArray(2);
 
     glBindBuffer(GL_ARRAY_BUFFER, 0);
     glBindVertexArray(0);
+}
+
+void MainView::loadTexture(QString file, GLuint texturePtr) {
+    // bind texture buffer
+    glBindTexture(GL_TEXTURE_2D, texturePtr);
+
+    // load image
+    QImage image(file);
+    QVector<quint8> imageData = imageToBytes(image);
+
+    // set texture params
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE); // wrapping s
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE); // wrapping t
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR); // minifying filter
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST); // magnifying filter
+
+    // anisotropic filtering
+    GLfloat f;
+    glGetFloatv(GL_MAX_TEXTURE_MAX_ANISOTROPY_EXT, &f);
+    glTexParameterf(GL_TEXTURE_2D,GL_TEXTURE_MAX_ANISOTROPY_EXT, f);
+
+    // upload image
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, image.width(), image.height(), 0, GL_RGBA, GL_UNSIGNED_BYTE, imageData.data());
+    glGenerateMipmap(GL_TEXTURE_2D);
 }
 
 
@@ -184,6 +226,14 @@ void MainView::paintGL() {
     glUniform3fv(uniformLightPositions[shade], 1, lightPosition);
     glUniform3fv(uniformMaterialColors[shade], 1, materialColor);
     glUniform3fv(uniformMaterialKs[shade], 1, materialKs);
+
+    glActiveTexture(GL_TEXTURE0);
+    glBindTexture(GL_TEXTURE_2D, texture);
+
+    // PHONG OR GOURAUD SHADER
+    if(shade != 1) {
+        glUniform1i(samplerUniform, 0);
+    }
 
     glBindVertexArray(meshVAO);
     glDrawArrays(GL_TRIANGLES, 0, meshSize);
