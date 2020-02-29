@@ -58,6 +58,7 @@ private:
     QOpenGLShaderProgram shaderProgram;
     GLint uniformModelViewTransform;
     GLint uniformProjectionTransform;
+    GLint uniformNormalTransform;
 
     // Mesh values
     GLuint meshVAO;

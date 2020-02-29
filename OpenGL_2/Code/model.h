@@ -44,7 +44,7 @@ public:
     bool hasTextureCoords();
     int getNumTriangles();
 
-    void unitize();
+    void unitize(float cubeSLen);
 
 private:
     // A Vertex class for vertex comparison
@@ -96,6 +96,11 @@ private:
 
     bool hNorms = false;
     bool hTexs = false;
+
+    // Helpers
+    float maximum(float x, float y);
+    float minimum(float x, float y);
+    float absolute(float x);
 };
 
 #endif // MODEL_H
