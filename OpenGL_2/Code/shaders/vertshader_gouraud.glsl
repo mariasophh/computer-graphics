@@ -39,5 +39,5 @@ void main()
     vec3 diffuse = lightCol * materialCol * materialK[1] * max(0.0, dot(N, L));
     vec3 specular = lightCol * materialK[2] * pow(max(0.0, dot(R, V)), 1.0);
 
-    vertNormal = ambient;// + diffuse + specular;
+    vertNormal = ambient + diffuse + specular;
 }
