@@ -12,7 +12,7 @@ uniform mat4 modelViewTransform;
 uniform mat4 projectionTransform;
 uniform mat3 normalTransform;
 
-uniform vec3 lightPosition;
+uniform vec3 lightPos;
 
 // Specify the output of the vertex stage
 out vec3 N, relLightPosition, vertexPosition;
@@ -22,7 +22,7 @@ void main()
     // gl_Position is the output (a vec4) of the vertex shader
     gl_Position = projectionTransform * modelViewTransform * vec4(vertCoordinates_in, 1.0);
 
-    relLightPosition = vec3(modelViewTransform * vec4(lightPosition, 1.0));
+    relLightPosition = vec3(modelViewTransform * vec4(lightPos, 1.0));
     vertexPosition = vec3(modelViewTransform * vec4(vertCoordinates_in, 1.0));
 
     N = normalize(normalTransform * vertNormal_in);
