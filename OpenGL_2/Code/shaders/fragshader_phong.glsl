@@ -20,4 +20,6 @@ void main()
 // note that colours have the range [0, 1] and the normal [-1, 1]
     vec3 ones = vec3(1.0);
     fNormal = vec4((normalize(vertNormal) + ones) * 0.5, 1.0);
+    // Distinguish Phong
+    fNormal /= 3;
 }

@@ -79,17 +79,38 @@ void MainView::initializeGL() {
 }
 
 void MainView::createShaderProgram() {
-    // Create shader program
-    shaderProgram.addShaderFromSourceFile(QOpenGLShader::Vertex,
-                                           ":/shaders/vertshader.glsl");
-    shaderProgram.addShaderFromSourceFile(QOpenGLShader::Fragment,
-                                           ":/shaders/fragshader.glsl");
-    shaderProgram.link();
+    // Create Normal shader program
+    shaderProgram[NORMAL].addShaderFromSourceFile(QOpenGLShader::Vertex,
+                                           ":/shaders/vertshader_normal.glsl");
+    shaderProgram[NORMAL].addShaderFromSourceFile(QOpenGLShader::Fragment,
+                                           ":/shaders/fragshader_normal.glsl");
+    shaderProgram[NORMAL].link();
 
-    // Get the uniforms
-    uniformModelViewTransform = shaderProgram.uniformLocation("modelViewTransform");
-    uniformProjectionTransform = shaderProgram.uniformLocation("projectionTransform");
-    uniformNormalTransform = shaderProgram.uniformLocation("normalTransform");
+    // Create Phong shader program
+    shaderProgram[PHONG].addShaderFromSourceFile(QOpenGLShader::Vertex,
+                                           ":/shaders/vertshader_phong.glsl");
+    shaderProgram[PHONG].addShaderFromSourceFile(QOpenGLShader::Fragment,
+                                           ":/shaders/fragshader_phong.glsl");
+    shaderProgram[PHONG].link();
+
+    // Create Gouraud shader program
+    shaderProgram[GOURAUD].addShaderFromSourceFile(QOpenGLShader::Vertex,
+                                           ":/shaders/vertshader_gouraud.glsl");
+    shaderProgram[GOURAUD].addShaderFromSourceFile(QOpenGLShader::Fragment,
+                                           ":/shaders/fragshader_gouraud.glsl");
+    shaderProgram[GOURAUD].link();
+
+    // Get the uniforms for all 3 shaders
+    for (int i=0; i<3; i++) {
+        uniformModelViewTransform[i] = shaderProgram[i].uniformLocation("modelViewTransform");
+        uniformProjectionTransform[i] = shaderProgram[i].uniformLocation("projectionTransform");
+        uniformNormalTransform[i] = shaderProgram[i].uniformLocation("normalTransform");
+
+        uniformLightPosition[i] = shaderProgram[i].uniformLocation("lightPos");
+        uniformLightColor[i] = shaderProgram[i].uniformLocation("lightCol");
+        uniformMaterialColor[i] = shaderProgram[i].uniformLocation("materialCol");
+        uniformMaterialK[i] = shaderProgram[i].uniformLocation("materialK");
+    }
 }
 
 void MainView::loadMesh() {
@@ -156,17 +177,21 @@ void MainView::paintGL() {
     // Clear the screen before rendering
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-    shaderProgram.bind();
+    shaderProgram[shade].bind();
 
+    glUniformMatrix4fv(uniformProjectionTransform[shade], 1, GL_FALSE, projectionTransform.data());
+    glUniformMatrix4fv(uniformModelViewTransform[shade], 1, GL_FALSE, meshTransform.data());
+    glUniformMatrix3fv(uniformNormalTransform[shade], 1, GL_FALSE, meshTransform.normalMatrix().data());
 
-    glUniformMatrix4fv(uniformProjectionTransform, 1, GL_FALSE, projectionTransform.data());
-    glUniformMatrix4fv(uniformModelViewTransform, 1, GL_FALSE, meshTransform.data());
-    glUniformMatrix3fv(uniformNormalTransform, 1, GL_FALSE, meshTransform.normalMatrix().data());
+    glUniform3fv(uniformLightPosition[shade], 1, lightPos);
+    glUniform3fv(uniformLightColor[shade], 1, lightCol);
+    glUniform3fv(uniformMaterialColor[shade], 1, materialCol);
+    glUniform3fv(uniformMaterialK[shade], 1, materialK);
 
     glBindVertexArray(meshVAO);
     glDrawArrays(GL_TRIANGLES, 0, meshSize);
 
-    shaderProgram.release();
+    shaderProgram[shade].release();
 }
 
 /**
@@ -219,7 +244,7 @@ void MainView::setScale(int newScale) {
 
 void MainView::setShadingMode(ShadingMode shading) {
     qDebug() << "Changed shading to" << shading;
-    Q_UNIMPLEMENTED();
+    shade = shading;
 }
 
 // --- Private helpers
