@@ -31,5 +31,5 @@ void main()
     vec3 specular = lightCol * materialK[2] * pow(max(0.0, dot(R, V)), 1.0);
 
     vec4 textureColor = texture(samplerUniform, textureCoordinates);
-    fNormal = textureColor;// * vec4(ambient + diffuse + specular, 1.0);
+    fNormal = textureColor * vec4(ambient + diffuse + specular, 1.0);
 }

@@ -20,6 +20,6 @@ void main()
 // normalize the interpolated normal and map it to a colour
 // note that colours have the range [0, 1] and the normal [-1, 1]
     vec4 textureColor = texture(samplerUniform, textureCoordinates);
-    fNormal = textureColor; //* vec4(vertNormal, 1.0);
+    fNormal = textureColor * vec4(vertNormal, 1.0);
 
 }

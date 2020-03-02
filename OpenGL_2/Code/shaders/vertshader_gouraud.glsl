@@ -25,7 +25,7 @@ out vec2 textureCoordinates;
 void main()
 {
     // gl_Position is the output (a vec4) of the vertex shader
-    gl_Position = projectionTransform * modelViewTransform * vec4(vertCoordinates_in * vec3(2, 2, 1), 1.0);
+    gl_Position = projectionTransform * modelViewTransform * vec4(vertCoordinates_in, 1.0);
 
     // Vertex position, normal and relative light position wrt scene
     vec3 vertexPosition = vec3(modelViewTransform * vec4(vertCoordinates_in, 1.0));
