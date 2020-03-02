@@ -6,9 +6,10 @@
 // Specify the inputs to the fragment shader
 // These must have the same type and name!
 in vec3 vertNormal;
+in vec2 textureCoordinates;
 
 // Specify the Uniforms of the fragment shaders
-// uniform vec3 lightPosition; // for example
+uniform sampler2D samplerUniform;
 
 // Specify the output of the fragment shader
 // Usually a vec4 describing a color (Red, Green, Blue, Alpha/Transparency)
@@ -18,5 +19,7 @@ void main()
 {
 // normalize the interpolated normal and map it to a colour
 // note that colours have the range [0, 1] and the normal [-1, 1]
-    fNormal = vec4(vertNormal, 1.0);
+    vec4 textureColor = texture(samplerUniform, textureCoordinates);
+    fNormal = textureColor; //* vec4(vertNormal, 1.0);
+
 }

@@ -34,6 +34,8 @@ public:
 
     // Variable used to select the shading
     GLuint shade;
+    // Variable to remember the texture
+    GLuint texture;
 
 protected:
     void initializeGL();
@@ -71,6 +73,9 @@ private:
     GLint uniformMaterialColor[3];
     GLint uniformMaterialK[3];
 
+    // Sampler uniform
+    GLuint uniformSampler;
+
     // Light and material values
     GLfloat lightPos[3] = {150, 200, 180}; // position of light
     GLfloat lightCol[3] = {1, 1, 1}; // white light color
@@ -90,6 +95,7 @@ private:
 
     void createShaderProgram();
     void loadMesh();
+    void loadTexture(QString file, GLuint texturePtr);
 
     void destroyModelBuffers();
 

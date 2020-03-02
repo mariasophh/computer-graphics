@@ -32,6 +32,8 @@ MainView::~MainView() {
     makeCurrent();
 
     destroyModelBuffers();
+
+    glDeleteTextures(1, &texture);
 }
 
 // --- OpenGL initialization
@@ -71,7 +73,11 @@ void MainView::initializeGL() {
     glClearColor(0.2f, 0.5f, 0.7f, 0.0f);
 
     createShaderProgram();
+
+    glGenTextures(1, &texture);
+
     loadMesh();
+    loadTexture(":/textures/cat_diff.png", texture);
 
     // Initialize transformations
     updateProjectionTransform();
@@ -111,6 +117,9 @@ void MainView::createShaderProgram() {
         uniformMaterialColor[i] = shaderProgram[i].uniformLocation("materialCol");
         uniformMaterialK[i] = shaderProgram[i].uniformLocation("materialK");
     }
+
+    uniformSampler = shaderProgram[PHONG].uniformLocation("samplerUniform");
+    uniformSampler = shaderProgram[GOURAUD].uniformLocation("samplerUniform");
 }
 
 void MainView::loadMesh() {
@@ -123,11 +132,14 @@ void MainView::loadMesh() {
     // retrieve the normals of the object
     QVector<QVector3D> vertexNormals = model.getNormals();
 
+    // retrieve the texture coords of the object
+    QVector<QVector2D> vertexTextureCoords = model.getTextureCoords();
+
     // store the size
     meshSize = vertexCoords.size();
 
     QVector<float> meshData;
-    meshData.reserve(2 * 3 * vertexCoords.size());
+    meshData.reserve(8 * vertexCoords.size());
 
     for (GLuint i=0; i<meshSize; i++)
     {
@@ -137,6 +149,8 @@ void MainView::loadMesh() {
         meshData.append(vertexNormals[i].x());
         meshData.append(vertexNormals[i].y());
         meshData.append(vertexNormals[i].z());
+        meshData.append(vertexTextureCoords[i].x());
+        meshData.append(vertexTextureCoords[i].y());
     }
 
     meshSize = vertexCoords.size();
@@ -153,15 +167,43 @@ void MainView::loadMesh() {
     glBufferData(GL_ARRAY_BUFFER, meshData.size() * sizeof(float), meshData.data(), GL_STATIC_DRAW);
 
     // Set vertex coordinates to location 0
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), 0);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), 0);
     glEnableVertexAttribArray(0);
 
     // Set colour coordinates to location 1
-    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), reinterpret_cast<void*>(3 * sizeof(float)));
+    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), reinterpret_cast<void*>(3 * sizeof(float)));
     glEnableVertexAttribArray(1);
+
+    // Set texture coordinates to location 2
+    glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), reinterpret_cast<void*>(6 * sizeof(float)));
+    glEnableVertexAttribArray(2);
 
     glBindBuffer(GL_ARRAY_BUFFER, 0);
     glBindVertexArray(0);
+}
+
+// Function used to bind and push data to texture
+void MainView::loadTexture(QString file, GLuint texturePtr) {
+    glBindTexture(GL_TEXTURE_2D, texturePtr);
+
+    // load image
+    QImage image(file);
+    QVector<quint8> imageData = imageToBytes(image);
+
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+    // anisotropic filtering
+    GLfloat f;
+    glGetFloatv(GL_MAX_TEXTURE_MAX_ANISOTROPY_EXT, &f);
+    glTexParameterf(GL_TEXTURE_2D,GL_TEXTURE_MAX_ANISOTROPY_EXT, f);
+
+    // Upload the image data
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, image.width(), image.height(), 0, GL_RGBA, GL_UNSIGNED_BYTE, imageData.data());
+
+    glGenerateMipmap(GL_TEXTURE_2D);
 }
 
 
@@ -187,6 +229,14 @@ void MainView::paintGL() {
     glUniform3fv(uniformLightColor[shade], 1, lightCol);
     glUniform3fv(uniformMaterialColor[shade], 1, materialCol);
     glUniform3fv(uniformMaterialK[shade], 1, materialK);
+
+    glActiveTexture(GL_TEXTURE0);
+    glBindTexture(GL_TEXTURE_2D, texture);
+
+    // PHONG OR GOURAUD SHADER
+    if(shade != 1) {
+         glUniform1i(uniformSampler, 0);
+    }
 
     glBindVertexArray(meshVAO);
     glDrawArrays(GL_TRIANGLES, 0, meshSize);

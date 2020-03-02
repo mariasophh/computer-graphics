@@ -6,6 +6,7 @@
 // Specify the input locations of attributes
 layout (location = 0) in vec3 vertCoordinates_in;
 layout (location = 1) in vec3 vertNormal_in;
+layout (location = 2) in vec2 textureCoordinates_in;
 
 // Specify the Uniforms of the vertex shader
 uniform mat4 modelViewTransform;
@@ -19,11 +20,12 @@ uniform vec3 materialK;
 
 // Specify the output of the vertex stage
 out vec3 vertNormal;
+out vec2 textureCoordinates;
 
 void main()
 {
     // gl_Position is the output (a vec4) of the vertex shader
-    gl_Position = projectionTransform * modelViewTransform * vec4(vertCoordinates_in, 1.0);
+    gl_Position = projectionTransform * modelViewTransform * vec4(vertCoordinates_in * vec3(2, 2, 1), 1.0);
 
     // Vertex position, normal and relative light position wrt scene
     vec3 vertexPosition = vec3(modelViewTransform * vec4(vertCoordinates_in, 1.0));
@@ -40,4 +42,5 @@ void main()
     vec3 specular = lightCol * materialK[2] * pow(max(0.0, dot(R, V)), 1.0);
 
     vertNormal = ambient + diffuse + specular;
+    textureCoordinates = textureCoordinates_in;
 }
