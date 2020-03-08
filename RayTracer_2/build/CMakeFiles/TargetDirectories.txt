@@ -1,0 +1,3 @@
+/Users/mariasophh/desktop/computer-graphics/RayTracer_2/build/CMakeFiles/rebuild_cache.dir
+/Users/mariasophh/desktop/computer-graphics/RayTracer_2/build/CMakeFiles/edit_cache.dir
+/Users/mariasophh/desktop/computer-graphics/RayTracer_2/build/CMakeFiles/ray.dir
