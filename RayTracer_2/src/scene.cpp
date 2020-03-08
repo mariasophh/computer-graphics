@@ -64,16 +64,33 @@ Color Scene::trace(Ray const &ray, unsigned depth)
     {
         Vector L = (light->position - hit).normalized();
 
-        // Add diffuse.
-        double diffuse = std::max(shadingN.dot(L), 0.0);
-        color += diffuse * material.kd * light->color * matColor;
+        // Account for shadown acne
+        Point hit_acne = hit + epsilon * shadingN;
+        // Cast shadow ray
+        Ray shadow(hit_acne, L);
+        pair<ObjectPtr, Hit> shadowHit = castRay(shadow);
+        ObjectPtr obj_shadow = shadowHit.first;
+        Hit hit_shadow = shadowHit.second;
 
-        // Add specular.
-        Vector reflectDir = reflect(-L, shadingN);
-        double specAngle = std::max(reflectDir.dot(V), 0.0);
-        double specular = std::pow(specAngle, material.n);
+        // Compute dist. from shadow to light source, used to check if
+        // the intersected object is farther than the light
+        double distSL = (shadow.O - light->position).length();
 
-        color += specular * material.ks * light->color;
+        // No intersection was found for shadow ray or the light is closer than
+        // the intersection => the object does not have a shadow
+        if(!renderShadows || !obj_shadow || (hit_shadow.t > distSL)) {
+
+            // Add diffuse.
+            double diffuse = std::max(shadingN.dot(L), 0.0);
+            color += diffuse * material.kd * light->color * matColor;
+
+            // Add specular.
+            Vector reflectDir = reflect(-L, shadingN);
+            double specAngle = std::max(reflectDir.dot(V), 0.0);
+            double specular = std::pow(specAngle, material.n);
+
+            color += specular * material.ks * light->color;
+        }
     }
 
     if (depth > 0 and material.isTransparent)
