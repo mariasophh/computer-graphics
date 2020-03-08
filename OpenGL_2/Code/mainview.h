@@ -79,7 +79,8 @@ private:
     // Light and material values
     GLfloat lightPos[3] = {150, 200, 180}; // position of light
     GLfloat lightCol[3] = {1, 1, 1}; // white light color
-    GLfloat materialCol[3] = {rand()/(float) RAND_MAX, rand()/(float) RAND_MAX, rand()/(float) RAND_MAX}; // material color
+    //GLfloat materialCol[3] = {rand()/(float) RAND_MAX, rand()/(float) RAND_MAX, rand()/(float) RAND_MAX}; // material color
+    GLfloat materialCol[3] = {1, 1, 1};
     GLfloat materialK[3] = {0.2, 0.3, 0.4}; // material coefficients (Ka, Kd, Ks)
 
     // Mesh values

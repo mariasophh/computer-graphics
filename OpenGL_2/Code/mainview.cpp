@@ -34,6 +34,10 @@ MainView::~MainView() {
     destroyModelBuffers();
 
     glDeleteTextures(1, &texture);
+
+    glDisableVertexAttribArray(0);
+    glDisableVertexAttribArray(1);
+    glDisableVertexAttribArray(2);
 }
 
 // --- OpenGL initialization
