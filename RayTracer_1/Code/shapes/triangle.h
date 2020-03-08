@@ -16,6 +16,9 @@ class Triangle: public Object
         Point v1;
         Point v2;
         Vector N;
+        Vector x_edge;
+        Vector y_edge;
+        Vector z_edge;
 };
 
 #endif
