@@ -219,6 +219,14 @@ Triple reflect(Triple const &incident, Triple const &normal)
     return incident - 2.0 * normal.dot(incident) * normal;
 }
 
+Triple refract(Triple const &incident, Triple const &normal, double ni, double nt)
+{
+    double dotProd = incident.dot(normal);
+    Triple firstTerm = ni * (incident - dotProd * normal) / nt;
+    Triple secondTerm = normal * sqrt(1 - (ni * ni * (1 - dotProd * dotProd)) / (nt * nt));
+    return firstTerm - secondTerm;
+}
+
 // --- IO Operators ------------------------------------------------------------
 
 istream &operator>>(istream &is, Triple &t)
