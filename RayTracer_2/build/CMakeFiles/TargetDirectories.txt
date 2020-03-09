@@ -1,0 +1,3 @@
+/Applications/Uni/Year3/Computer Graphics/computer-graphics/RayTracer_2/build/CMakeFiles/rebuild_cache.dir
+/Applications/Uni/Year3/Computer Graphics/computer-graphics/RayTracer_2/build/CMakeFiles/edit_cache.dir
+/Applications/Uni/Year3/Computer Graphics/computer-graphics/RayTracer_2/build/CMakeFiles/ray.dir

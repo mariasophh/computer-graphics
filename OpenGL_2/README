@@ -1,0 +1,32 @@
+This is a README file.
+
+# BONUS: 
+
+- Model::unitize(float cubeSLen) takes the side length of the cube that will fit the model. Besides scaling the model to fit within a cube with the passed side length, this function centers the model around the origin. Note that this function is called upon loading the model and before retrieving its vertices. 
+
+- Anisotropic filtering: we have enabled anisotropic filtering before uploading the texture.
+
+The models appear bigger because we have used unitize with a cube side length of 2.
+
+# NORMAL SHADER: 
+- We have followed the instructions given in the assignment. Three screenshots (with/without the normal matrix) can be found under /Screenshots/Normal shader. Note that the "face" of the cat object stays the same (normal_shader), but the back of the cat without the normal matrix has different colors (which appear to be brighter). This is because the relative angles of the normals are not preserved for the vertices that lie at the "back" of the cat when the model is transformed (e.g. rotated).  
+
+# SELECTING SHADERS:
+- We have followed the instructions given in the assignment. Under /Screenshots/Selecting Shader you can find the results with the enabled (not yet implemented) Gouraud and Phong shaders. Note that the Gouraud model is darker (division by 3) than the Phong model (division by 2). 
+
+# GOURAUD AND PHONG SHADERS
+For these two shaders we have introduced 4 uniform 3 dimensional vectors (materialColor, materialKs, lightPosition and lightColor). Their definition can be found in the MainView header file. The light has a white color, whereas the material has a random color. 
+
+For the implementation, we have followed the instructions and the lecture slides. 
+Note that the key difference between the two shaders is that in the GOURAUD shader model, all the computations happen in the vertex shader which passes the shader components (i.e. ambient, diffuse, specular) to the fragment shader which will compute the color using the materialColor and lightColor uniforms.
+ 
+On the other hand, in the PHONG shader model, the vertex shader computes the relative position of the light (which is fixed wrt the scene), the vertex position and normal and passes this information to the fragment shader that will compute the shading components and the color. 
+
+In order to illustrate the two shaders we have included the same picture of the cat model with Gouraud and Phong shading under Screenshots/Gouraud + Phong. Note that screenshots from the back of the model have been taken so that we demonstrate that the light is fixed.
+
+# TEXTURE MAPPING
+We have followed the instructions given in the assignment. Note that the fragment shaders will compute the color by using the texture instead of the material color (which was the case for the previous assignment).
+
+We have implemented anisotropic filtering before loading the model. However, we did not observe any major difference as the texture surface did not seem blurred without this filtering technique. As far as different wrapping is concerned, we observed that if we multiply the texture vertex coordinates by 2 then the texture is underfit wrt the model. On the other hand, if we multiply them by 0.5 then the texture is overfit wrt the model. 
+
+All the experiments we have done with different wrappers and different textures and models can be found under Screenshots/Textures.

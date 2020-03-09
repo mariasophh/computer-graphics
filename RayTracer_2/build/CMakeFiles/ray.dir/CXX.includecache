@@ -1,0 +1,98 @@
+#IncludeRegexLine: ^[ 	]*[#%][ 	]*(include|import)[ 	]*[<"]([^">]+)([">])
+
+#IncludeRegexScan: ^.*$
+
+#IncludeRegexComplain: ^$
+
+#IncludeRegexTransform: 
+
+/Applications/Uni/Year3/Computer Graphics/computer-graphics/RayTracer_2/src/hit.h
+triple.h
+/Applications/Uni/Year3/Computer Graphics/computer-graphics/RayTracer_2/src/triple.h
+limits
+-
+
+/Applications/Uni/Year3/Computer Graphics/computer-graphics/RayTracer_2/src/image.h
+triple.h
+/Applications/Uni/Year3/Computer Graphics/computer-graphics/RayTracer_2/src/triple.h
+string
+-
+vector
+-
+
+/Applications/Uni/Year3/Computer Graphics/computer-graphics/RayTracer_2/src/json/json_fwd.h
+cstdint
+-
+map
+-
+memory
+-
+string
+-
+vector
+-
+
+/Applications/Uni/Year3/Computer Graphics/computer-graphics/RayTracer_2/src/light.h
+triple.h
+/Applications/Uni/Year3/Computer Graphics/computer-graphics/RayTracer_2/src/triple.h
+memory
+-
+
+/Applications/Uni/Year3/Computer Graphics/computer-graphics/RayTracer_2/src/material.h
+image.h
+/Applications/Uni/Year3/Computer Graphics/computer-graphics/RayTracer_2/src/image.h
+triple.h
+/Applications/Uni/Year3/Computer Graphics/computer-graphics/RayTracer_2/src/triple.h
+
+/Applications/Uni/Year3/Computer Graphics/computer-graphics/RayTracer_2/src/object.h
+material.h
+/Applications/Uni/Year3/Computer Graphics/computer-graphics/RayTracer_2/src/material.h
+hit.h
+/Applications/Uni/Year3/Computer Graphics/computer-graphics/RayTracer_2/src/hit.h
+ray.h
+/Applications/Uni/Year3/Computer Graphics/computer-graphics/RayTracer_2/src/ray.h
+triple.h
+/Applications/Uni/Year3/Computer Graphics/computer-graphics/RayTracer_2/src/triple.h
+memory
+-
+
+/Applications/Uni/Year3/Computer Graphics/computer-graphics/RayTracer_2/src/ray.h
+triple.h
+/Applications/Uni/Year3/Computer Graphics/computer-graphics/RayTracer_2/src/triple.h
+
+/Applications/Uni/Year3/Computer Graphics/computer-graphics/RayTracer_2/src/scene.cpp
+scene.h
+/Applications/Uni/Year3/Computer Graphics/computer-graphics/RayTracer_2/src/scene.h
+hit.h
+/Applications/Uni/Year3/Computer Graphics/computer-graphics/RayTracer_2/src/hit.h
+image.h
+/Applications/Uni/Year3/Computer Graphics/computer-graphics/RayTracer_2/src/image.h
+material.h
+/Applications/Uni/Year3/Computer Graphics/computer-graphics/RayTracer_2/src/material.h
+ray.h
+/Applications/Uni/Year3/Computer Graphics/computer-graphics/RayTracer_2/src/ray.h
+algorithm
+-
+cmath
+-
+limits
+-
+
+/Applications/Uni/Year3/Computer Graphics/computer-graphics/RayTracer_2/src/scene.h
+light.h
+/Applications/Uni/Year3/Computer Graphics/computer-graphics/RayTracer_2/src/light.h
+object.h
+/Applications/Uni/Year3/Computer Graphics/computer-graphics/RayTracer_2/src/object.h
+triple.h
+/Applications/Uni/Year3/Computer Graphics/computer-graphics/RayTracer_2/src/triple.h
+vector
+-
+utility
+-
+
+/Applications/Uni/Year3/Computer Graphics/computer-graphics/RayTracer_2/src/triple.h
+json/json_fwd.h
+/Applications/Uni/Year3/Computer Graphics/computer-graphics/RayTracer_2/src/json/json_fwd.h
+iosfwd
+-
+
