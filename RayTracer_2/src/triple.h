@@ -94,6 +94,7 @@ Triple operator*(double f, Triple const &t);
 
 // reflect incident in normal
 Triple reflect(Triple const &incident, Triple const &normal);
+Triple refract(Triple const &incident, Triple const &normal, double ni, double nt);
 
 // --- IO Operators ------------------------------------------------------------
 

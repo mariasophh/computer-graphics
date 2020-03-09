@@ -46,6 +46,7 @@ class Scene
         void setRenderShadows(bool renderShadows);
         void setRecursionDepth(unsigned depth);
         void setSuperSample(unsigned factor);
+        bool traceShadow(Point hit, Vector V, Vector shadingN);
 
         unsigned getNumObject();
         unsigned getNumLights();
