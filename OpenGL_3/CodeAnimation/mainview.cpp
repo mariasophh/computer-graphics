@@ -1,5 +1,6 @@
 #include "mainview.h"
 #include "model.h"
+#include "sceneobject.h"
 
 /**
  * @brief MainView::MainView
@@ -12,9 +13,6 @@ MainView::MainView(QWidget *parent) : QOpenGLWidget(parent) {
     qDebug() << "MainView constructor";
 
     connect(&timer, SIGNAL(timeout()), this, SLOT(update()));
-
-    // render 60 frames per second
-    timer.start(1000.0 / 60.0);
 }
 
 /**
@@ -30,7 +28,9 @@ MainView::~MainView() {
 
     makeCurrent();
 
-    glDeleteTextures(1, &textureName);
+    for(sceneObject obj : sceneObjects) {
+        glDeleteTextures(1, &obj.textureName);
+    }
 
     destroyModelBuffers();
 }
@@ -64,12 +64,22 @@ void MainView::initializeGL() {
     glClearColor(0.2F, 0.5F, 0.7F, 0.0F);
 
     createShaderProgram();
-    loadMesh();
+
+    // initialize the scene objects
+    sceneObject cat;
+    cat.objectPath = ":/models/cat.obj";
+    cat.texturePath = ":/textures/cat_diff.png";
+    loadMesh(&cat);
+    sceneObjects.push_back(cat);
+
     loadTextures();
 
     // Initialize transformations.
     updateProjectionTransform();
     updateModelTransforms();
+
+    // render 60 frames per second
+    timer.start(1000.0 / 60.0);
 }
 
 void MainView::createShaderProgram() {
@@ -90,19 +100,23 @@ void MainView::createShaderProgram() {
     uniformTextureSamplerPhong      = phongShaderProgram.uniformLocation("textureSampler");
 }
 
-void MainView::loadMesh() {
-    Model model(":/models/cat.obj");
+/* The new loadMesh function has a pointer to the scene object
+ * as it is called for each object
+ */
+void MainView::loadMesh(sceneObject *obj) {
+    Model model(obj->objectPath);
+    model.unitize(1);
     QVector<float> meshData = model.getVNTInterleaved();
 
-    meshSize = model.getVertices().size();
+    obj->meshSize = model.getVertices().size();
 
     // Generate VAO
-    glGenVertexArrays(1, &meshVAO);
-    glBindVertexArray(meshVAO);
+    glGenVertexArrays(1, &obj->meshVAO);
+    glBindVertexArray(obj->meshVAO);
 
     // Generate VBO
-    glGenBuffers(1, &meshVBO);
-    glBindBuffer(GL_ARRAY_BUFFER, meshVBO);
+    glGenBuffers(1, &obj->meshVBO);
+    glBindBuffer(GL_ARRAY_BUFFER, obj->meshVBO);
 
     // Write the data to the buffer
     glBufferData(GL_ARRAY_BUFFER, meshData.size() * sizeof(GL_FLOAT), meshData.data(), GL_STATIC_DRAW);
@@ -124,8 +138,11 @@ void MainView::loadMesh() {
 }
 
 void MainView::loadTextures() {
-    glGenTextures(1, &textureName);
-    loadTexture(":/textures/cat_diff.png", textureName);
+    // load the texture for each object
+    for(sceneObject &obj : sceneObjects) {
+        glGenTextures(1, &obj.textureName);
+        loadTexture(obj.texturePath, obj.textureName);
+    }
 }
 
 void MainView::loadTexture(QString file, GLuint textureName) {
@@ -171,12 +188,19 @@ void MainView::paintGL() {
         break;
     }
 
-    // Set the texture and draw the mesh.
-    glActiveTexture(GL_TEXTURE0);
-    glBindTexture(GL_TEXTURE_2D, textureName);
+    // Update the animation
+    updateAnimationObjects();
 
-    glBindVertexArray(meshVAO);
-    glDrawArrays(GL_TRIANGLES, 0, meshSize);
+    // Update the model transforms before drawing
+    updateModelTransforms();
+
+    // Set the texture
+    glActiveTexture(GL_TEXTURE0);
+
+    // Draw each scene object
+    for(sceneObject &obj : sceneObjects) {
+        paintObject(obj);
+    }
 
     phongShaderProgram.release();
 }
@@ -197,8 +221,6 @@ void MainView::resizeGL(int newWidth, int newHeight) {
 
 void MainView::updatePhongUniforms() {
     glUniformMatrix4fv(uniformProjectionTransformPhong, 1, GL_FALSE, projectionTransform.data());
-    glUniformMatrix4fv(uniformModelViewTransformPhong, 1, GL_FALSE, meshTransform.data());
-    glUniformMatrix3fv(uniformNormalTransformPhong, 1, GL_FALSE, meshNormalTransform.data());
 
     glUniform4fv(uniformMaterialPhong, 1, &material[0]);
     glUniform3fv(uniformLightPositionPhong, 1, &lightPosition[0]);
@@ -214,25 +236,46 @@ void MainView::updateProjectionTransform() {
 }
 
 void MainView::updateModelTransforms() {
-    meshTransform.setToIdentity();
-    meshTransform.translate(0.0F, -1.0F, -4.0F);
+    // update every object
+    for(sceneObject &obj : sceneObjects) {
+        obj.meshTransform.setToIdentity();
+        obj.meshTransform.translate(0.0F, -1.0F, -4.0F);
+        obj.meshTransform.rotate(rotation.x() + obj.rotationAngle, {1.0F, 0.0F, 0.0F});
+        obj.meshTransform.rotate(rotation.y(), {0.0F, 1.0F, 0.0F});
+        obj.meshTransform.rotate(rotation.z(), {0.0F, 0.0F, 1.0F});
 
-    meshTransform.rotate(rotation.x(), {1.0F, 0.0F, 0.0F});
-    meshTransform.rotate(rotation.y(), {0.0F, 1.0F, 0.0F});
-    meshTransform.rotate(rotation.z(), {0.0F, 0.0F, 1.0F});
-
-    meshTransform.scale(scale);
-
-    meshNormalTransform = meshTransform.normalMatrix();
+        obj.meshTransform.scale(scale);
+        obj.meshNormalTransform = obj.meshTransform.normalMatrix();
+    }
 
     update();
+}
+
+/* This function updates the animation of an object */
+void MainView::updateAnimationObjects() {
+    // rotate it
+    sceneObjects[0].rotationAngle += 6;
+}
+
+/* This function paints one object */
+void MainView::paintObject(sceneObject obj) {
+    // phong uniforms specific to current object
+    glUniformMatrix4fv(uniformModelViewTransformPhong, 1, GL_FALSE, obj.meshTransform.data());
+    glUniformMatrix3fv(uniformNormalTransformPhong, 1, GL_FALSE, obj.meshNormalTransform.data());
+
+    glBindTexture(GL_TEXTURE_2D, obj.textureName);
+
+    glBindVertexArray(obj.meshVAO);
+    glDrawArrays(GL_TRIANGLES, 0, obj.meshSize);
 }
 
 // --- OpenGL cleanup helpers
 
 void MainView::destroyModelBuffers() {
-    glDeleteBuffers(1, &meshVBO);
-    glDeleteVertexArrays(1, &meshVAO);
+    for(sceneObject &obj : sceneObjects) {
+        glDeleteBuffers(1, &obj.meshVBO);
+        glDeleteVertexArrays(1, &obj.meshVAO);
+    }
 }
 
 // --- Public interface

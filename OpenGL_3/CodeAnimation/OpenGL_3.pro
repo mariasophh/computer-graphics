@@ -18,7 +18,8 @@ SOURCES += \
 HEADERS += \
     mainwindow.h \
     mainview.h \
-    model.h
+    model.h \
+    sceneobject.h
 
 FORMS += \
     mainwindow.ui
