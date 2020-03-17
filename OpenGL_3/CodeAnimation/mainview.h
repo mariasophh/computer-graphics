@@ -2,6 +2,7 @@
 #define MAINVIEW_H
 
 #include "model.h"
+#include "sceneobject.h"
 
 #include <QImage>
 #include <QKeyEvent>
@@ -16,7 +17,6 @@
 #include <QVector3D>
 
 #include <memory>
-#include <sceneobject.h>
 
 class MainView : public QOpenGLWidget, protected QOpenGLFunctions_3_3_Core {
     Q_OBJECT
@@ -81,6 +81,8 @@ protected:
     void mousePressEvent(QMouseEvent *ev);
     void mouseReleaseEvent(QMouseEvent *ev);
     void wheelEvent(QWheelEvent *ev);
+
+    // Functions for animation
     void updateAnimationObjects();
     void paintObject(sceneObject obj);
 

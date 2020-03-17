@@ -1,8 +1,17 @@
-This is a README file
+# COMMON ANIMATION
+The results can be found under /Screenshots.
 
-When submitting your assignment, describe (briefly) the changes you made and what difficulties you encountered in this file.
+We have defined a new struct, namely sceneObject that stores all the necessary information of an object. Thus, we avoid code duplication as all the provided functions support multiple scene objects. 
 
-Also describe what controls (key short-cuts, mouse clicks, mouse movement etc) and possible bonus assignments you implemented, so we can check them more easily.
+In the scene we have two different meshes: cat and sphere, with two instances of each. Every object has a different texture. We have borrowed textures that were given in the last RayTracer assignment (i.e. earth texture, basketball texture).
 
-If you have any suggestions/feedback for improving the practical assignments or support from teaching assistants, you may include it here OR post in anonymously on Nestor under Feedback.
+All four instances are animated in a different way:
+1. CAT DIFF: translated with its defined speed along the y-axis (changes direction when it exceeds the set boundaries) and it does a full rotation in 1 second along the y-axis
+2. CAT NORM: translated with its defined speed along the y-axis (changes direction when it exceeds the set boundaries) and it does a faster rotation along the x-axis
 
+The cats always move in opposite directions.
+
+3. PLANET (EARTH): it rotates along all the axis and its size increases until it reaches a scale of 1.5; this object is never translated
+4. (BASKET) BALL: this object is translated with its defined speed along the x-axis (changes direction when it exceeds the set boundaries). When the PLANET stops increasing, BALL starts increasing until it reaches a scale of 1.5; this object is never rotated
+
+Unfortunately, we had difficulties with implementing the camera movements.
