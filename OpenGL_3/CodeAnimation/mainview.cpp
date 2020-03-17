@@ -1,6 +1,4 @@
 #include "mainview.h"
-#include "model.h"
-#include "sceneobject.h"
 
 /**
  * @brief MainView::MainView
