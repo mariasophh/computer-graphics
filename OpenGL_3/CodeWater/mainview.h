@@ -37,6 +37,7 @@ class MainView : public QOpenGLWidget, protected QOpenGLFunctions_3_3_Core {
     GLint amplitude;
     GLint frequency;
     GLint phase;
+    GLint uniformTime;
 
     GLint uniformTextureSamplerPhong;
 
@@ -64,6 +65,8 @@ class MainView : public QOpenGLWidget, protected QOpenGLFunctions_3_3_Core {
     GLfloat amplitudeValues[5] = {0.05F, 0.09F, 0.03F, 0.01F, 0.07F};  // values < 0.1 for nice results
     GLfloat frequencyValues[5] = {2.5F, 5.0F, 1.0F, 3.8F, 1.7F};
     GLfloat phaseValues[5] = {0.0F, 0.0F, 0.0F, 0.0F, 0.0F};
+    GLfloat time;
+
 
 public:
     enum ShadingMode : GLuint

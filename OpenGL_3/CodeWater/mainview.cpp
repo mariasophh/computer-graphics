@@ -67,6 +67,10 @@ void MainView::initializeGL() {
     // Initialize transformations.
     updateProjectionTransform();
     updateModelTransforms();
+
+    // render 60 frames per second
+    timer.start(1000.0 / 60.0);
+    time = 0;
 }
 
 void MainView::createShaderProgram() {
@@ -81,12 +85,16 @@ void MainView::createShaderProgram() {
     uniformModelViewTransformPhong  = shaderProgram.uniformLocation("modelViewTransform");
     uniformProjectionTransformPhong = shaderProgram.uniformLocation("projectionTransform");
     uniformNormalTransformPhong     = shaderProgram.uniformLocation("normalTransform");
+
     amplitude                       = shaderProgram.uniformLocation("amplitude");
     frequency                       = shaderProgram.uniformLocation("frequency");
     phase                           = shaderProgram.uniformLocation("phase");
-    //uniformMaterialPhong            = phongShaderProgram.uniformLocation("material");
-    //uniformLightPositionPhong       = phongShaderProgram.uniformLocation("lightPosition");
-    //uniformLightColorPhong          = phongShaderProgram.uniformLocation("lightColor");
+
+    uniformMaterialPhong            = shaderProgram.uniformLocation("material");
+    uniformLightPositionPhong       = shaderProgram.uniformLocation("lightPosition");
+    uniformLightColorPhong          = shaderProgram.uniformLocation("lightColor");
+
+    uniformTime                     = shaderProgram.uniformLocation("time");
     //uniformTextureSamplerPhong      = phongShaderProgram.uniformLocation("textureSampler");
 }
 
@@ -197,17 +205,21 @@ void MainView::resizeGL(int newWidth, int newHeight) {
 }
 
 void MainView::updatePhongUniforms() {
+
+    time += 1.0/60.0;
+
     glUniformMatrix4fv(uniformProjectionTransformPhong, 1, GL_FALSE, projectionTransform.data());
     glUniformMatrix4fv(uniformModelViewTransformPhong, 1, GL_FALSE, meshTransform.data());
     glUniformMatrix3fv(uniformNormalTransformPhong, 1, GL_FALSE, meshNormalTransform.data());
 
-    glUniform1fv(amplitude, 1, amplitudeValues);
-    glUniform1fv(frequency, 1, frequencyValues);
-    glUniform1fv(phase, 1, phaseValues);
+    glUniform1fv(amplitude, 5, amplitudeValues);
+    glUniform1fv(frequency, 5, frequencyValues);
+    glUniform1fv(phase, 5, phaseValues);
 
-    //glUniform4fv(uniformMaterialPhong, 1, &material[0]);
-    //glUniform3fv(uniformLightPositionPhong, 1, &lightPosition[0]);
-    //glUniform3f(uniformLightColorPhong, lightColor.x(), lightColor.y(), lightColor.z());
+    glUniform4fv(uniformMaterialPhong, 1, &material[0]);
+    glUniform3fv(uniformLightPositionPhong, 1, &lightPosition[0]);
+    glUniform3f(uniformLightColorPhong, lightColor.x(), lightColor.y(), lightColor.z());
+    glUniform1f(uniformTime, time);
 
     //glUniform1i(uniformTextureSamplerPhong, 0);
 }

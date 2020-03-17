@@ -4,23 +4,38 @@
 #define M_PI 3.141593
 
 // The input from the vertex shader.
-in vec2 uv;
-in vec3 vertNormal;
+//in vec2 uv;
+in vec3 waveNormal;
+in vec3 currentPosition;
+in vec3 materialColor;
+in vec3 camera;
 
 // Illumination model constants.
-//uniform vec4 material;
-//uniform vec3 lightColor;
-
-// Texture sampler.
-//uniform sampler2D textureSampler;
+uniform vec4 material;
+uniform vec3 lightColor;
+uniform vec3 lightPosition;
 
 // Specify the output of the fragment shader.
 out vec4 fColor;
 
 void main()
 {
-    // Normalize the interpolated normal and map it to a colour
-    // Note that colours have the range [0, 1] and the normal [-1, 1]
-    vec3 ones = vec3(1.0);
-    fColor = vec4((normalize(vertNormal) + ones) * 0.5F, 1.0F);
+    // Ambient color does not depend on any vectors.
+    vec3 color    = material.x * materialColor;
+
+    // Calculate light direction vectors in the Phong illumination model.
+    vec3 lightDirection    = normalize(lightPosition - currentPosition);
+    vec3 normal            = normalize(waveNormal);
+
+    // Diffuse color.
+    float diffuseIntensity = max(dot(normal, lightDirection), 0.0F);
+    color += materialColor * material.y * diffuseIntensity;
+
+    // Specular color.
+    vec3 viewDirection      = normalize(camera - currentPosition);
+    vec3 reflectDirection   = reflect(-lightDirection, normal);
+    float specularIntensity = max(dot(reflectDirection, viewDirection), 0.0F);
+    color += lightColor * material.z * pow(specularIntensity, material.w);
+
+    fColor = vec4(color, 1.0F);
 }
