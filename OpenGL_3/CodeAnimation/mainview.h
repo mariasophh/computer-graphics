@@ -16,6 +16,7 @@
 #include <QVector3D>
 
 #include <memory>
+#include <sceneobject.h>
 
 class MainView : public QOpenGLWidget, protected QOpenGLFunctions_3_3_Core {
     Q_OBJECT
@@ -30,26 +31,21 @@ class MainView : public QOpenGLWidget, protected QOpenGLFunctions_3_3_Core {
     GLint uniformProjectionTransformPhong;
     GLint uniformNormalTransformPhong;
 
+    QMatrix4x4 projectionTransform;
+    QMatrix3x3 meshNormalTransform;
+    QMatrix4x4 meshTransform;
+
+    float scale = 1.0F;
+    QVector3D rotation;
+
     GLint uniformMaterialPhong;
     GLint uniformLightPositionPhong;
     GLint uniformLightColorPhong;
 
     GLint uniformTextureSamplerPhong;
 
-    // Buffers
-    GLuint meshVAO;
-    GLuint meshVBO;
-    GLuint meshSize;
-
-    // Texture
-    GLuint textureName;
-
-    // Transforms
-    float scale = 1.0F;
-    QVector3D rotation;
-    QMatrix4x4 projectionTransform;
-    QMatrix3x3 meshNormalTransform;
-    QMatrix4x4 meshTransform;
+    // vector that stores all the scene objects
+    std::vector<sceneObject> sceneObjects;
 
     // Phong model constants.
     QVector4D material = {0.5F, 0.5F, 0.5F, 5.0F};
@@ -85,13 +81,15 @@ protected:
     void mousePressEvent(QMouseEvent *ev);
     void mouseReleaseEvent(QMouseEvent *ev);
     void wheelEvent(QWheelEvent *ev);
+    void updateAnimationObjects();
+    void paintObject(sceneObject obj);
 
 private slots:
     void onMessageLogged( QOpenGLDebugMessage Message );
 
 private:
     void createShaderProgram();
-    void loadMesh();
+    void loadMesh(sceneObject *obj);
 
     // Loads texture data into the buffer with the name textureName.
     void loadTextures();
