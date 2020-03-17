@@ -66,11 +66,37 @@ void MainView::initializeGL() {
     createShaderProgram();
 
     // initialize the scene objects
-    sceneObject cat;
-    cat.objectPath = ":/models/cat.obj";
-    cat.texturePath = ":/textures/cat_diff.png";
-    loadMesh(&cat);
-    sceneObjects.push_back(cat);
+    sceneObject cat_diff;
+    cat_diff.objectPath = ":/models/cat.obj";
+    cat_diff.texturePath = ":/textures/cat_diff.png";
+    loadMesh(&cat_diff);
+    cat_diff.position = QVector3D(0, 0, -6);
+    cat_diff.speed = QVector3D(0, 0.005, 0);
+    sceneObjects.push_back(cat_diff);
+
+    sceneObject cat_norm;
+    cat_norm.objectPath = ":/models/cat.obj";
+    cat_norm.texturePath = ":/textures/cat_norm.png";
+    loadMesh(&cat_norm);
+    cat_norm.position = QVector3D(0, 0, -6);
+    cat_norm.speed = QVector3D(0, -0.005, 0);
+    sceneObjects.push_back(cat_norm);
+
+    sceneObject planet;
+    planet.objectPath = ":/models/sphere.obj";
+    planet.texturePath = ":/textures/earthmap1k.png";
+    loadMesh(&planet);
+    planet.position = QVector3D(2, 0, -6);
+    planet.speed = QVector3D(0, 0, 0);
+    sceneObjects.push_back(planet);
+
+    sceneObject ball;
+    ball.objectPath = ":/models/sphere.obj";
+    ball.texturePath = ":/textures/basketball.png";
+    loadMesh(&ball);
+    ball.position = QVector3D(-2, 0, -6);
+    ball.speed = QVector3D(-0.01, 0, 0);
+    sceneObjects.push_back(ball);
 
     loadTextures();
 
@@ -174,6 +200,12 @@ void MainView::paintGL() {
     // Clear the screen before rendering
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
+    // Update the animation
+    updateAnimationObjects();
+
+    // Update the model transforms before drawing
+    updateModelTransforms();
+
     // Choose the selected shader.
     switch (currentShader) {
     case NORMAL:
@@ -187,12 +219,6 @@ void MainView::paintGL() {
         updatePhongUniforms();
         break;
     }
-
-    // Update the animation
-    updateAnimationObjects();
-
-    // Update the model transforms before drawing
-    updateModelTransforms();
 
     // Set the texture
     glActiveTexture(GL_TEXTURE0);
@@ -239,12 +265,13 @@ void MainView::updateModelTransforms() {
     // update every object
     for(sceneObject &obj : sceneObjects) {
         obj.meshTransform.setToIdentity();
-        obj.meshTransform.translate(0.0F, -1.0F, -4.0F);
-        obj.meshTransform.rotate(rotation.x() + obj.rotationAngle, {1.0F, 0.0F, 0.0F});
-        obj.meshTransform.rotate(rotation.y(), {0.0F, 1.0F, 0.0F});
-        obj.meshTransform.rotate(rotation.z(), {0.0F, 0.0F, 1.0F});
+        obj.meshTransform.translate(obj.position);
+        // rotate with the sum of the object's rotation and the global rotation
+        obj.meshTransform.rotate(obj.rotation.x() + rotation.x(), {1.0F, 0.0F, 0.0F});
+        obj.meshTransform.rotate(obj.rotation.y() + rotation.y(), {0.0F, 1.0F, 0.0F});
+        obj.meshTransform.rotate(obj.rotation.z() + rotation.z(), {0.0F, 0.0F, 1.0F});
 
-        obj.meshTransform.scale(scale);
+        obj.meshTransform.scale(obj.scale * scale);
         obj.meshNormalTransform = obj.meshTransform.normalMatrix();
     }
 
@@ -253,8 +280,39 @@ void MainView::updateModelTransforms() {
 
 /* This function updates the animation of an object */
 void MainView::updateAnimationObjects() {
-    // rotate it
-    sceneObjects[0].rotationAngle += 6;
+    // animate each object differently
+
+    // CAT_DIFF
+
+    if(sceneObjects[0].position.y() > 3 || sceneObjects[0].position.y() < 0) {
+        sceneObjects[0].speed *= -1; // change direction to respect boundaries
+    }
+    sceneObjects[0].position += sceneObjects[0].speed; //translation with its speed
+    sceneObjects[0].rotation += QVector3D(0, 6, 0); // rotate on the y-axis
+
+    // CAT_NORMAL
+    if(sceneObjects[1].position.y() < -3 || sceneObjects[1].position.y() > 0) {
+        sceneObjects[1].speed *= -1; // change direction to respect boundaries
+    }
+    sceneObjects[1].position += sceneObjects[1].speed; //translation with its speed
+    sceneObjects[1].rotation += QVector3D(10, 0, 0); // rotate on the x-axis
+
+    // PLANET
+    sceneObjects[2].rotation += QVector3D(1, 1, 1); // rotate on all the axis
+    // increase its size until it reaches a scale of 1.5
+    if(sceneObjects[2].scale < 1.5) {
+        sceneObjects[2].scale *= 1.001;
+    } else if(sceneObjects[3].scale < 1.5){
+        // start to also increase the ball until it reaches a scale of 1.5
+        sceneObjects[3].scale *= 1.001;
+    }
+
+    // BALL
+    if(sceneObjects[3].position.x() < -5 || sceneObjects[3].position.x() > -2) {
+        sceneObjects[3].speed *= -1; // change direction to respect boundaries
+    }
+    sceneObjects[3].position += sceneObjects[3].speed; // translation with its speed
+
 }
 
 /* This function paints one object */

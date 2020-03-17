@@ -15,12 +15,11 @@ struct sceneObject {
     // Texture ptr
     GLuint textureName;
 
-    // Rotation angle
-    GLfloat rotationAngle = 0.0;
-
     // Transforms
     float scale = 1.0F;
     QVector3D rotation;
+    QVector3D position;
+    QVector3D speed;
     QMatrix4x4 meshTransform;
     QMatrix3x3 meshNormalTransform;
 
