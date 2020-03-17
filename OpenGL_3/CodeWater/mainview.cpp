@@ -56,13 +56,13 @@ void MainView::initializeGL() {
     qDebug() << ":: Using OpenGL" << qPrintable(glVersion);
 
     glEnable(GL_DEPTH_TEST);
-    glEnable(GL_CULL_FACE);
+    //glEnable(GL_CULL_FACE);
     glDepthFunc(GL_LEQUAL);
     glClearColor(0.2F, 0.5F, 0.7F, 0.0F);
 
     createShaderProgram();
     loadMesh();
-    loadTextures();
+    //loadTextures();
 
     // Initialize transformations.
     updateProjectionTransform();
@@ -70,25 +70,29 @@ void MainView::initializeGL() {
 }
 
 void MainView::createShaderProgram() {
-    // Create Phong shader program.
-    phongShaderProgram.addShaderFromSourceFile(QOpenGLShader::Vertex,
-                                           ":/shaders/vertshader_phong.glsl");
-    phongShaderProgram.addShaderFromSourceFile(QOpenGLShader::Fragment,
-                                           ":/shaders/fragshader_phong.glsl");
-    phongShaderProgram.link();
+    // Create new shader program.
+    shaderProgram.addShaderFromSourceFile(QOpenGLShader::Vertex,
+                                           ":/shaders/vertshader_water.glsl");
+    shaderProgram.addShaderFromSourceFile(QOpenGLShader::Fragment,
+                                           ":/shaders/fragshader_water.glsl");
+    shaderProgram.link();
 
     // Get the uniforms for the Phong shader program.
-    uniformModelViewTransformPhong  = phongShaderProgram.uniformLocation("modelViewTransform");
-    uniformProjectionTransformPhong = phongShaderProgram.uniformLocation("projectionTransform");
-    uniformNormalTransformPhong     = phongShaderProgram.uniformLocation("normalTransform");
-    uniformMaterialPhong            = phongShaderProgram.uniformLocation("material");
-    uniformLightPositionPhong       = phongShaderProgram.uniformLocation("lightPosition");
-    uniformLightColorPhong          = phongShaderProgram.uniformLocation("lightColor");
-    uniformTextureSamplerPhong      = phongShaderProgram.uniformLocation("textureSampler");
+    uniformModelViewTransformPhong  = shaderProgram.uniformLocation("modelViewTransform");
+    uniformProjectionTransformPhong = shaderProgram.uniformLocation("projectionTransform");
+    uniformNormalTransformPhong     = shaderProgram.uniformLocation("normalTransform");
+    amplitude                       = shaderProgram.uniformLocation("amplitude");
+    frequency                       = shaderProgram.uniformLocation("frequency");
+    phase                           = shaderProgram.uniformLocation("phase");
+    //uniformMaterialPhong            = phongShaderProgram.uniformLocation("material");
+    //uniformLightPositionPhong       = phongShaderProgram.uniformLocation("lightPosition");
+    //uniformLightColorPhong          = phongShaderProgram.uniformLocation("lightColor");
+    //uniformTextureSamplerPhong      = phongShaderProgram.uniformLocation("textureSampler");
 }
 
 void MainView::loadMesh() {
-    Model model(":/models/cat.obj");
+    Model model(":/models/grid.obj");
+    model.unitize(1);
     QVector<float> meshData = model.getVNTInterleaved();
 
     meshSize = model.getVertices().size();
@@ -163,19 +167,19 @@ void MainView::paintGL() {
         qDebug() << "Gouraud shader program not implemented";
         break;
     case PHONG:
-        phongShaderProgram.bind();
+        shaderProgram.bind();
         updatePhongUniforms();
         break;
     }
 
     // Set the texture and draw the mesh.
-    glActiveTexture(GL_TEXTURE0);
-    glBindTexture(GL_TEXTURE_2D, textureName);
+    //glActiveTexture(GL_TEXTURE0);
+    //glBindTexture(GL_TEXTURE_2D, textureName);
 
     glBindVertexArray(meshVAO);
     glDrawArrays(GL_TRIANGLES, 0, meshSize);
 
-    phongShaderProgram.release();
+    shaderProgram.release();
 }
 
 /**
@@ -197,11 +201,15 @@ void MainView::updatePhongUniforms() {
     glUniformMatrix4fv(uniformModelViewTransformPhong, 1, GL_FALSE, meshTransform.data());
     glUniformMatrix3fv(uniformNormalTransformPhong, 1, GL_FALSE, meshNormalTransform.data());
 
-    glUniform4fv(uniformMaterialPhong, 1, &material[0]);
-    glUniform3fv(uniformLightPositionPhong, 1, &lightPosition[0]);
-    glUniform3f(uniformLightColorPhong, lightColor.x(), lightColor.y(), lightColor.z());
+    glUniform1fv(amplitude, 1, amplitudeValues);
+    glUniform1fv(frequency, 1, frequencyValues);
+    glUniform1fv(phase, 1, phaseValues);
 
-    glUniform1i(uniformTextureSamplerPhong, 0);
+    //glUniform4fv(uniformMaterialPhong, 1, &material[0]);
+    //glUniform3fv(uniformLightPositionPhong, 1, &lightPosition[0]);
+    //glUniform3f(uniformLightColorPhong, lightColor.x(), lightColor.y(), lightColor.z());
+
+    //glUniform1i(uniformTextureSamplerPhong, 0);
 }
 
 void MainView::updateProjectionTransform() {
