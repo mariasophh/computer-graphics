@@ -23,7 +23,7 @@ class MainView : public QOpenGLWidget, protected QOpenGLFunctions_3_3_Core {
     QOpenGLDebugLogger debugLogger;
     QTimer timer; // Timer used for animation.
 
-    QOpenGLShaderProgram phongShaderProgram;
+    QOpenGLShaderProgram shaderProgram;
 
     // Uniforms for the Phong shader program.
     GLint uniformModelViewTransformPhong;
@@ -33,6 +33,10 @@ class MainView : public QOpenGLWidget, protected QOpenGLFunctions_3_3_Core {
     GLint uniformMaterialPhong;
     GLint uniformLightPositionPhong;
     GLint uniformLightColorPhong;
+
+    GLint amplitude;
+    GLint frequency;
+    GLint phase;
 
     GLint uniformTextureSamplerPhong;
 
@@ -55,6 +59,11 @@ class MainView : public QOpenGLWidget, protected QOpenGLFunctions_3_3_Core {
     QVector4D material = {0.5F, 0.5F, 0.5F, 5.0F};
     QVector3D lightPosition = {0.0F, 100.0F, 0.0F};
     QVector3D lightColor = {1.0F, 1.0F, 1.0F};
+
+    // Amplitude, frequency and phase values
+    GLfloat amplitudeValues[5] = {0.05F, 0.09F, 0.03F, 0.01F, 0.07F};  // values < 0.1 for nice results
+    GLfloat frequencyValues[5] = {2.5F, 5.0F, 1.0F, 3.8F, 1.7F};
+    GLfloat phaseValues[5] = {0.0F, 0.0F, 0.0F, 0.0F, 0.0F};
 
 public:
     enum ShadingMode : GLuint

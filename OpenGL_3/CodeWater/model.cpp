@@ -55,8 +55,51 @@ Model::Model(QString filename) {
  * Useful for models with different scales
  *
  */
-void Model::unitize() {
-    qDebug() << "Unitize not implemented.";
+void Model::unitize(float cubeSLen) {
+    // find max and min on each axis
+   float x_max, y_max, z_max;
+   float x_min, y_min, z_min;
+
+   QVector<QVector3D>::iterator it = vertices.begin();
+   x_max = x_min = (*it).x();
+   y_max = y_min = (*it).y();
+   z_max = z_min = (*it).z();
+   it++;
+   while(it != vertices.end()) {
+       // update maximum values
+       x_max = maximum(x_max, (*it).x());
+       y_max = maximum(y_max, (*it).y());
+       z_max = maximum(z_max, (*it).z());
+       // update minimum values
+       x_min = minimum(x_min, (*it).x());
+       y_min = minimum(y_min, (*it).y());
+       z_min = minimum(z_min, (*it).z());
+
+       ++it;
+   }
+
+   // compute height, width and depth to scale
+   float height = absolute(x_max) + absolute(x_min);
+   float width = absolute(y_max) + absolute(y_min);
+   float depth = absolute(z_max) + absolute(z_min);
+
+   // compute scaling factor
+   float scalingFactor = 2 * cubeSLen / maximum(height, maximum(width, depth));
+
+   // compute center to translate to origin
+   float center_x = (x_max + x_min) / 2.0f;
+   float center_y = (y_max + y_min) / 2.0f;
+   float center_z = (z_max + z_min) / 2.0f;
+
+   QVector3D centerTrans = QVector3D(center_x, center_y, center_z);
+
+   // unitize
+   for(int i = 0; i< vertices.size(); i++) {
+       // translate to origin
+       vertices[i] -= centerTrans;
+       // scale with the computed scaling factor
+       vertices[i] *= scalingFactor;
+   }
 }
 
 QVector<QVector3D> Model::getVertices() {
@@ -300,4 +343,19 @@ void Model::unpackIndexes() {
             textureCoords.append(tex[texcoord_indices[i]]);
         }
     }
+}
+
+/* This function returns the maximum between two float numbers*/
+float Model::maximum(float x, float y) {
+    return (x > y) ? x : y;
+}
+
+/* This function returns the minimum between two float numbers*/
+float Model::minimum(float x, float y) {
+    return (x > y) ? y : x;
+}
+
+/* This function returns the absolute value of a float number */
+float Model::absolute(float x) {
+    return (x > 0) ? x : -x;
 }
